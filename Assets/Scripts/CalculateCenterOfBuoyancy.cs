@@ -22,21 +22,21 @@ namespace Assets.Scripts
                 float addedLoad = 535.0f;
                 float density = 1.025f;
 
-                float totalLoad = (670.8f)/ density;
+                float exactSubmergedVolume = 340.71f;// 1017.58f;// (1043f)/ density;
 
-                float submergedVolume = 0.0f;
-                float scale = 2.8f;
+                float currentSubmergedVolume = 0.0f;
+                float scale = 1.9f;
  
                 SliceMeshVol meshVolume = new SliceMeshVol();
-                while (submergedVolume < totalLoad && scale < 5)
+                while (currentSubmergedVolume < exactSubmergedVolume && scale < 5)
                 {
                     GameObject[] result = gameObject.AddComponent<RuntimeShatterExample>().SlicedShipHullHorizontal(scale);
-                    submergedVolume = meshVolume.VolumeOfMesh(result[1].GetComponent<MeshFilter>().sharedMesh)/density;
+                    currentSubmergedVolume = meshVolume.VolumeOfMesh(result[1].GetComponent<MeshFilter>().sharedMesh)/density;
 
-                    string msg = "Volume for draught :   " + scale + " is : " + submergedVolume + " cube units.";
+                    string msg = "Volume for draught :   " + scale + " is : " + currentSubmergedVolume + " cube units.";
                     Debug.Log(msg);
 
-                    scale += 0.005f;
+                    scale += 0.002f;
                 }
             }
             catch (Exception ex)

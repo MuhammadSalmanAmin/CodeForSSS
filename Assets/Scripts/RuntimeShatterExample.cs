@@ -27,9 +27,11 @@ public class RuntimeShatterExample : MonoBehaviour
     {  
     }
 
-    public GameObject[] SlicedShipHullHorizontal(float draught)
+
+    public GameObject[] SlicedShipHullHorizontal(float draught, GameObject customObject = null)
     {
-        objectToShatter = GameObject.FindGameObjectsWithTag("solid_hull")[0];
+ 
+        objectToShatter = customObject == null ? GameObject.FindGameObjectsWithTag("solid_hull")[0] : customObject;
         GameObject[] result = ShatterObject(objectToShatter, draught, crossSectionMaterial = null);
         return result;
     }

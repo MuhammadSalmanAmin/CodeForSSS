@@ -11,9 +11,23 @@ namespace Assets.Scripts
         {
             try
             {
-                float scale = 0f;
-                GameObject[] result = gameObject.AddComponent<RuntimeShatterExample>().SlicedVerticalShipHull(scale);
- 
+                float submergedVolume = 0.0f;
+                float density = 1.025f;
+
+                SliceMeshVol meshVolume = new SliceMeshVol();
+
+                GameObject[] result = gameObject.AddComponent<RuntimeShatterExample>().SlicedShipHullHorizontal(2.032f);
+                GameObject[] result2 = result[1].AddComponent<RuntimeShatterExample>().SlicedShipHullHorizontal(2.03f, result[1]);
+
+                //GameObject[] result = gameObject.AddComponent<RuntimeShatterExample>().SlicedShipHullHorizontal(3.062008f);
+                //GameObject[] result2 = result[1].AddComponent<RuntimeShatterExample>().SlicedShipHullHorizontal(3.060008f, result[1]);
+
+                submergedVolume = meshVolume.VolumeOfMesh(result2[0].GetComponent<MeshFilter>().sharedMesh) ;
+
+                //string msg = "Volume for draught :   " + " is : " + submergedVolume + " cube units.";
+
+                string msg = "Waterplane area is : " + submergedVolume/0.002 + " sq units.";
+                Debug.Log(msg);
             }
             catch (Exception ex)
             {
