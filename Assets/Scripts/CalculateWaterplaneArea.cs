@@ -19,8 +19,8 @@ namespace Assets.Scripts
                 //GameObject[] result = gameObject.AddComponent<RuntimeShatterExample>().SlicedShipHullHorizontal(4.849989f);
                 //GameObject[] result2 = result[1].AddComponent<RuntimeShatterExample>().SlicedShipHullHorizontal(4.848989f, result[1]);
 
-                GameObject[] result = gameObject.AddComponent<RuntimeShatterExample>().SlicedShipHullHorizontal(3.062008f);
-                //GameObject[] result2 = result[1].AddComponent<RuntimeShatterExample>().SlicedShipHullHorizontal(3.060008f, result[1]);
+                GameObject[] result = gameObject.AddComponent<RuntimeShatterExample>().SlicedShipHullHorizontal(3.062008f,false,false);
+                GameObject[] result2 = result[1].AddComponent<RuntimeShatterExample>().SlicedShipHullHorizontal(3.060008f, result[1]);
 
                 //submergedVolume = meshVolume.VolumeOfMesh(result2[0].GetComponent<MeshFilter>().sharedMesh) ;
 

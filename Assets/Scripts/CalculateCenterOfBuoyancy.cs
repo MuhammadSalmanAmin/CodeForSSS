@@ -12,37 +12,45 @@ namespace Assets.Scripts
         void Start()
         {
             ///
-            CalculateBuoyancy();
+           //  CalculateBuoyancy();
         }
-        public void CalculateBuoyancy()
+        public GameObject CalculateBuoyancy()
         {
+            GameObject submergedHull = null;
             try
             {
                 float initialLoad = 411.0f;
                 float addedLoad = 535.0f;
                 float density = 1.025f;
 
-                float exactSubmergedVolume = 1308.149f;// 1017.58f;// (1043f)/ density;
+                float exactSubmergedVolume = 654.413f;
 
                 float currentSubmergedVolume = 0.0f;
-                float scale = 4.70f;
+                float scale = 2.9f;
+
  
                 SliceMeshVol meshVolume = new SliceMeshVol();
                 while (currentSubmergedVolume < exactSubmergedVolume && scale < 5)
                 {
-                    GameObject[] result = gameObject.AddComponent<RuntimeShatterExample>().SlicedShipHullHorizontal(scale);
-                    currentSubmergedVolume = meshVolume.VolumeOfMesh(result[1].GetComponent<MeshFilter>().sharedMesh)/density;
+                    GameObject[] result = gameObject.AddComponent<RuntimeShatterExample>().SlicedShipHullAlongZ(scale, false, false, null);
+                    currentSubmergedVolume = meshVolume.VolumeOfMesh(result[1].GetComponent<MeshFilter>().sharedMesh) / density;
+
+                    submergedHull = result[1];
 
                     string msg = "Volume for draught :   " + scale + " is : " + currentSubmergedVolume + " cube units.";
                     Debug.Log(msg);
 
                     scale += 0.002f;
                 }
+
+                gameObject.AddComponent<RuntimeShatterExample>().SlicedShipHullAlongZ(scale, true, true, null);
             }
             catch (Exception ex)
             {
                 Debug.Log(ex.ToString());
             }
+
+            return submergedHull;
         }
     }
 }

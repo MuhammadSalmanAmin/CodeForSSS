@@ -17,11 +17,11 @@ namespace EzySlice {
             this.lower_hull = lowerHull;
         }
 
-        public GameObject CreateUpperHull(GameObject original) {
-            return CreateUpperHull(original, null);
+        public GameObject CreateUpperHull(GameObject original,bool displayHull) {
+            return CreateUpperHull(original, null, displayHull);
         }
 
-        public GameObject CreateUpperHull(GameObject original, Material crossSectionMat) {
+        public GameObject CreateUpperHull(GameObject original, Material crossSectionMat,bool displayHull) {
             GameObject newObject = CreateUpperHull();
 
             if (newObject != null)
@@ -55,15 +55,17 @@ namespace EzySlice {
                 newObject.GetComponent<Renderer>().sharedMaterials = newShared;
             }
 
-            newObject.GetComponent<MeshRenderer>().enabled = true;
+           
+            newObject.SetActive(displayHull);
+            newObject.GetComponent<MeshRenderer>().enabled = displayHull;
             return newObject;
         }
 
-        public GameObject CreateLowerHull(GameObject original) {
-            return CreateLowerHull(original, null);
+        public GameObject CreateLowerHull(GameObject original,bool displayHull) {
+            return CreateLowerHull(original, null, displayHull);
         }
 
-        public GameObject CreateLowerHull(GameObject original, Material crossSectionMat) {
+        public GameObject CreateLowerHull(GameObject original, Material crossSectionMat,bool displayHull) {
             GameObject newObject = CreateLowerHull();
 
             if (newObject != null)
@@ -97,7 +99,8 @@ namespace EzySlice {
                 newObject.GetComponent<Renderer>().sharedMaterials = newShared;
             }
 
-            newObject.GetComponent<MeshRenderer>().enabled = true;
+            newObject.SetActive(displayHull);
+            newObject.GetComponent<MeshRenderer>().enabled = displayHull;
 
             return newObject;
         }
