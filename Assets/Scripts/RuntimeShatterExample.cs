@@ -36,45 +36,68 @@ public class RuntimeShatterExample : MonoBehaviour
         return result;
     }
 
-
-    public GameObject[] SlicedVerticalShipHull(float draught)
+    public GameObject[] SlicedShipHullAlongZ(float draught, GameObject customObject = null)
     {
-        objectToShatter = GameObject.FindGameObjectsWithTag("solid_hull")[0];
+
+        objectToShatter = customObject == null ? GameObject.FindGameObjectsWithTag("solid_hull")[0] : customObject;
+        GameObject[] result = ShatterObjectAlongZAxis(objectToShatter, draught, crossSectionMaterial = null);
+        return result;
+    }
+
+    public GameObject[] SlicedVerticalShipHull(float draught, GameObject customObject = null)
+    {
+        objectToShatter = customObject == null ? GameObject.FindGameObjectsWithTag("solid_hull")[0] : customObject;
         GameObject[] result = VerticalShatterObject(objectToShatter, draught, crossSectionMaterial = null);
         return result;
     }
     public GameObject[] ShatterObject(GameObject obj,float draught, Material crossSectionMaterial = null )
     {
-        return obj.SliceInstantiate(GetHorizontalPlane(obj.transform.position, obj.transform.localScale, draught),
+        return obj.SliceInstantiate(GetPlaneAlongYAxis(obj.transform.position, obj.transform.localScale, draught),
                                                             new TextureRegion(0.0f, 0.0f, 1.0f, 1.0f),
                                                             crossSectionMaterial);
 
     }
 
+    public GameObject[] ShatterObjectAlongZAxis(GameObject obj, float draught, Material crossSectionMaterial = null)
+    {
+        return obj.SliceInstantiate(GetPlaneAlongZAxis(obj.transform.position, obj.transform.localScale, draught),
+                                                            new TextureRegion(0.0f, 0.0f, 1.0f, 1.0f),
+                                                            crossSectionMaterial);
 
+    }
     public GameObject[] VerticalShatterObject(GameObject obj, float draught, Material crossSectionMaterial = null)
     {
-        return obj.SliceInstantiate(GetVerticalPlane(obj.transform.position, obj.transform.localScale, draught),
+        return obj.SliceInstantiate(GetPlaneAlongXAxis(obj.transform.position, obj.transform.localScale, draught),
                                                             new TextureRegion(0.0f, 0.0f, 1.0f, 1.0f),
                                                             crossSectionMaterial);
 
     }
 
 
-    public EzySlice.Plane GetVerticalPlane(Vector3 positionOffset, Vector3 scaleOffset, float draught)
+    public EzySlice.Plane GetPlaneAlongXAxis(Vector3 positionOffset, Vector3 scaleOffset, float draught)
     {
-        Vector3 direction = new Vector3(-10f, 0f, 0f);
-        Vector3 positionnew = new Vector3(-10f, 0f, 0f);
+        Vector3 direction = new Vector3(draught, 0f, 0f);
+        Vector3 positionnew = new Vector3(draught, 0f, 0f);
         var plane = new EzySlice.Plane(positionnew, direction); 
         return plane;
     }
 
-    public EzySlice.Plane GetHorizontalPlane(Vector3 positionOffset, Vector3 scaleOffset, float draught)
+    public EzySlice.Plane GetPlaneAlongYAxis(Vector3 positionOffset, Vector3 scaleOffset, float draught)
     {
         Vector3 direction = new Vector3(0f, draught, 0f);
         Vector3 positionnew = new Vector3(15f, draught, 0f);
         var plane = new EzySlice.Plane(positionnew, direction);
         return plane;
     }
+
+    public EzySlice.Plane GetPlaneAlongZAxis(Vector3 positionOffset, Vector3 scaleOffset, float draught)
+    {
+        Vector3 direction = new Vector3(0f, 0f, draught);
+        Vector3 positionnew = new Vector3(0f, 0f, draught);
+       
+        var plane = new EzySlice.Plane(positionnew, direction);
+        return plane;
+    }
+
 
 }
