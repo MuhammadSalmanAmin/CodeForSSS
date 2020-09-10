@@ -12,7 +12,7 @@ namespace Assets.Scripts
         void Start()
         {
             ///
-           //  CalculateBuoyancy();
+            CalculateBuoyancy();
         }
         public GameObject CalculateBuoyancy()
         {
@@ -28,7 +28,7 @@ namespace Assets.Scripts
                 float currentSubmergedVolume = 0.0f;
                 float scale = 2.9f;
 
- 
+
                 SliceMeshVol meshVolume = new SliceMeshVol();
                 while (currentSubmergedVolume < exactSubmergedVolume && scale < 5)
                 {
@@ -43,7 +43,22 @@ namespace Assets.Scripts
                     scale += 0.002f;
                 }
 
-                gameObject.AddComponent<RuntimeShatterExample>().SlicedShipHullAlongZ(scale, true, true, null);
+                Debug.Log("Total Displacement : " + (654.413f * 1.025f));
+                Debug.Log("Volume : " + currentSubmergedVolume);
+                Debug.Log("Draft Amidships : " + scale);
+                Debug.Log("Immersed Depth : " + scale);
+
+                var wettedHull = gameObject.AddComponent<RuntimeShatterExample>().SlicedShipHullAlongZ(scale, false, false, null);
+            
+                CalculateCentroidFromArea centroidFromArea = new CalculateCentroidFromArea();
+                var wettedArea = centroidFromArea.AreaOfMesh(gameObject.GetComponent<MeshFilter>().sharedMesh) - centroidFromArea.AreaOfMesh(wettedHull[0].GetComponent<MeshFilter>().sharedMesh);
+
+                Debug.Log("Area is : " + wettedArea);
+
+                CalculateCentroidFromVolume centroidFromVol = new CalculateCentroidFromVolume();
+
+                centroidFromVol.CalculateKB(wettedHull[1].GetComponent<MeshFilter>().sharedMesh);
+                centroidFromVol.CalculateLCB(wettedHull[1].GetComponent<MeshFilter>().sharedMesh);
             }
             catch (Exception ex)
             {

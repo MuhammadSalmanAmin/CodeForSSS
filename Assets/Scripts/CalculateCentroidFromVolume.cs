@@ -117,26 +117,89 @@ public class CalculateCentroidFromVolume : MonoBehaviour
 
         Debug.Log("Centroid From Volume  -> Centroid : " + centroid);
 
-        //float xCenter = 0.0f, yCenter = 0.0f, zCenter = 0.0f;
-
-        //for (int i = 0; i < mesh.triangles.Length; i += 3)
-        //{
-        //    Vector3 p1 = vertices[triangles[i + 0]]; // x1,y1,z1
-        //    Vector3 p2 = vertices[triangles[i + 1]]; // x2,y2,z2
-        //    Vector3 p3 = vertices[triangles[i + 2]]; // x3,y3,z3
-
-        //    volume_sum += volume = SignedVolumeOfTriangle(p1, p2, p3);
-
-        //    xCenter += ((p1.x + p2.x + p3.x) / 3) * volume;
-        //    yCenter += ((p1.y + p2.y + p3.y) / 3) * volume;
-        //    zCenter += ((p1.z + p2.z + p3.z) / 3) * volume;
-
-        //}
-        //Debug.Log("old approcah xCenter  : " + xCenter/volume_sum + ",yCenter : " + yCenter / volume_sum + " ,zcenter : " + zCenter / volume_sum);
-
         return (volume_sum);
     }
 
+    public float CalculateKB(Mesh mesh)
+    {
+        float volume = 0.0f;
+        float volume_sum = 0.0f;
+        Vector3 centroid = new Vector3(0.0f, 0.0f, 0.0f);
+        Vector3[] vertices = mesh.vertices;
+        int[] triangles = mesh.triangles;
+
+
+        for (int i = 0; i < mesh.triangles.Length; i += 3)
+        {
+            Vector3 p1 = vertices[triangles[i + 0]];
+            Vector3 p2 = vertices[triangles[i + 1]];
+            Vector3 p3 = vertices[triangles[i + 2]];
+
+            var cross = Vector3.Cross(p1, p2);
+            var dot = UnityEngine.Vector3.Dot(cross, p3);
+
+            volume = dot / 6;
+            centroid += volume * (p1 + p2 + p3) / 4;
+            volume_sum += volume;
+        }
+        centroid /= volume_sum;
+        Debug.Log("KB : " + centroid.z);
+        return (centroid.z);
+    }
+
+    public float CalculateLCF(Mesh mesh)
+    {
+        float volume = 0.0f;
+        float volume_sum = 0.0f;
+        Vector3 centroid = new Vector3(0.0f, 0.0f, 0.0f);
+        Vector3[] vertices = mesh.vertices;
+        int[] triangles = mesh.triangles;
+
+
+        for (int i = 0; i < mesh.triangles.Length; i += 3)
+        {
+            Vector3 p1 = vertices[triangles[i + 0]];
+            Vector3 p2 = vertices[triangles[i + 1]];
+            Vector3 p3 = vertices[triangles[i + 2]];
+
+            var cross = Vector3.Cross(p1, p2);
+            var dot = UnityEngine.Vector3.Dot(cross, p3);
+
+            volume = dot / 6;
+            centroid += volume * (p1 + p2 + p3) / 4;
+            volume_sum += volume;
+        }
+        centroid /= volume_sum;
+        Debug.Log("LCF : " + centroid.x);
+        return (centroid.x);
+    }
+    public float CalculateLCB(Mesh mesh)
+    {
+        float volume = 0.0f;
+        float volume_sum = 0.0f;
+        Vector3 centroid = new Vector3(0.0f, 0.0f, 0.0f);
+        Vector3[] vertices = mesh.vertices;
+        int[] triangles = mesh.triangles;
+
+
+        for (int i = 0; i < mesh.triangles.Length; i += 3)
+        {
+            Vector3 p1 = vertices[triangles[i + 0]];
+            Vector3 p2 = vertices[triangles[i + 1]];
+            Vector3 p3 = vertices[triangles[i + 2]];
+
+            var cross = Vector3.Cross(p1, p2);
+            var dot = UnityEngine.Vector3.Dot(cross, p3);
+
+            volume = dot / 6;
+            centroid += volume * (p1 + p2 + p3) / 4;
+            volume_sum += volume;
+        }
+        centroid /= volume_sum;
+
+        Debug.Log("LCB : " + centroid.x);
+        return (centroid.x);
+    }
     public float VolumeOfMesh1(Mesh mesh)
     {
         float volume = 0.0f;

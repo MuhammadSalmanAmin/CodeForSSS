@@ -49,10 +49,10 @@ public class CalculateCentroidFromArea : MonoBehaviour
 {
     void Start()
     {
-        Mesh mesh = GetComponent<MeshFilter>().sharedMesh;
-        float area = AreaOfMesh(mesh);
-        string msg = "Area of mesh is " + area + " cube units.";
-        Debug.Log(msg);
+        //Mesh mesh = GetComponent<MeshFilter>().sharedMesh;
+        //float area = AreaOfMesh(mesh);
+        //string msg = "Area of mesh is " + area + " cube units.";
+        //Debug.Log(msg);
     }
     public float AreaOfMesh(Mesh mesh)
     {
@@ -62,8 +62,8 @@ public class CalculateCentroidFromArea : MonoBehaviour
         float max = mesh.vertices.Select(x => x.x).Max();
         float min = mesh.vertices.Select(x => x.x).Min();
 
-        Debug.Log("Max : " + max + "  , Min : " + min);
-        Debug.Log("Final Length  : " + max + min);
+      //  Debug.Log("Max : " + max + "  , Min : " + min);
+       // Debug.Log("Final Length  : " + max + min);
 
         int[] triangles = mesh.triangles;
         Vector3 centroid = new Vector3(0.0f, 0.0f, 0.0f);
@@ -80,7 +80,7 @@ public class CalculateCentroidFromArea : MonoBehaviour
             area_sum += area;
         }
         centroid /= area_sum;
-        Debug.Log("In Calculate Centroid From Area  -> Centroid : " + centroid);
+       // Debug.Log("Centroid from area is : " + centroid);
         return area_sum;
     }
 }
