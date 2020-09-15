@@ -23,10 +23,10 @@ namespace Assets.Scripts
                 float addedLoad = 535.0f;
                 float density = 1.025f;
 
-                float exactSubmergedVolume = 654.413f;
+                float exactSubmergedVolume = 1017.58f;
 
                 float currentSubmergedVolume = 0.0f;
-                float scale = 2.9f;
+                float scale = 3.9f;
 
 
                 SliceMeshVol meshVolume = new SliceMeshVol();

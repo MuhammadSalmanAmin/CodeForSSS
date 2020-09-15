@@ -77,11 +77,11 @@ namespace Assets.Scripts
                 System.Collections.Generic.List<Tuple<float, float>> coordinates = new System.Collections.Generic.List<Tuple<float, float>>();
 
  
-                GameObject submergedHull1 = gameObject.AddComponent<RuntimeShatterExample>().SlicedShipHullAlongZ(3.032006f, false, false , null)[1];// GetSubmergedHull();
+                GameObject submergedHull1 = gameObject.AddComponent<RuntimeShatterExample>().SlicedShipHullAlongZ(3.031006f, false, false , null)[1];// GetSubmergedHull();
 
                 GameObject submergedHull = gameObject.AddComponent<RuntimeShatterExample>().SlicedShipHullAlongZ(3.030006f, true, false, submergedHull1)[0];// GetSubmergedHull();
 
-                GameObject[] halfHull = gameObject.AddComponent<RuntimeShatterExample>().SlicedShipHullHorizontal(0.005f, false, false, submergedHull);
+                GameObject[] halfHull = gameObject.AddComponent<RuntimeShatterExample>().SlicedShipHullHorizontal(0.005f, true, true, submergedHull);
 
                 GameObject upperHalfHull = halfHull[0];
 
@@ -128,14 +128,12 @@ namespace Assets.Scripts
                         {
                             meshed = slicedHulls[0].GetComponent<MeshFilter>().sharedMesh;
                         }
-                         // Debug.Log("X Axis : " + currentLength + " , Y Axis : " + meshed.vertices.Where(x => x.x == currentLength).Max(z => z.y));
- 
+
                         coordinates.Add(new Tuple<float, float>(currentLength, meshed.vertices.Where(x => x.x == currentLength).Max(z => z.y)));
                     }
                     else
                     {
                         coordinates.Add(new Tuple<float, float>(currentLength, 3.889421f));
-                        // Debug.Log("X Axis : " + currentLength + " , Y Axis : " + 3.889421f);
                     }
                     currentLength += equalChunk;
 
@@ -146,8 +144,10 @@ namespace Assets.Scripts
 
                  Debug.Log("Waterplane area is :  " + area * 2);
 
-                CalculateCentroidFromVolume centroidFromVol = new CalculateCentroidFromVolume();
-                centroidFromVol.CalculateLCF(submergedHull.GetComponent<MeshFilter>().sharedMesh);
+                CalculateLCF(coordinates, area*2, 0.98649f);
+
+                //CalculateCentroidFromVolume centroidFromVol = new CalculateCentroidFromVolume();
+                //centroidFromVol.CalculateLCF(submergedHull.GetComponent<MeshFilter>().sharedMesh);
 
                 //CalculateLCF(coordinates, 2 * area, 0.98649f);// add script of centroid from volume and x axis is ans
                 // MomentsOfInertia(coordinates,  area, 0.98649f);
@@ -156,7 +156,7 @@ namespace Assets.Scripts
                 // CalculateAreaForMoment(coordinates);
 
                 // SecondMomentOfInertia(coordinates);
-                
+
                 CalculateIX(coordinates);
 
                // Debug.Log("Cx : " + CalculateCOFx(coordinates));
@@ -336,9 +336,9 @@ namespace Assets.Scripts
             foreach (var item in coordinates)
             {
                 float area = item.Item1 * item.Item2;
-                //Debug.Log(area);
                 productArea += area;
             }
+
             Debug.Log("Water plane area : " + waterPlaneArea + " Product Area : " + productArea);
             float result = ((2 / waterPlaneArea) * (intervalLength /3)) * productArea;
 
@@ -349,15 +349,70 @@ namespace Assets.Scripts
         {
             float productArea = 0.0f;
 
-            foreach (var item in coordinates)
+            for (int i = 0; i < coordinates.Count(); i++)
             {
-                Debug.Log("X : " + item.Item1 + " , Y : " + item.Item2);
-                float area = item.Item2 * (item.Item1* item.Item1 * item.Item1);
-                productArea += area;
+                if (i == 0)
+                {
+                    float area =  1* (coordinates[i].Item2 * coordinates[i].Item2 * coordinates[i].Item2);
+                    productArea += area;
+                }
+                else if (i == coordinates.Count() - 1)
+                {
+                    float area =  1 * (coordinates[i].Item2 * coordinates[i].Item2 * coordinates[i].Item2);
+                    productArea += area;
+                }
+                else
+                {
+                    if (i % 2 == 1)
+                    {
+                        float area = 4 * (coordinates[i].Item2 * coordinates[i].Item2 * coordinates[i].Item2);
+                        productArea += area;
+                    }
+                    else
+                    {
+                        float area =  2 * (coordinates[i].Item2 * coordinates[i].Item2 * coordinates[i].Item2);
+                        productArea += area;
+                    }
+                }
             }
-             float result = 0.65766f * productArea;
-
+       
+            float result = 0.21922f * productArea;
             Debug.Log("IXX is : " + result);
+        }
+
+        public void CalculateIYY(System.Collections.Generic.List<Tuple<float, float>> coordinates)
+        {
+            float productArea = 0.0f;
+
+            for (int i = 0; i < coordinates.Count(); i++)
+            {
+                if (i == 0)
+                {
+                    float area = 1 * (coordinates[i].Item2 * coordinates[i].Item2 * coordinates[i].Item2);
+                    productArea += area;
+                }
+                else if (i == coordinates.Count() - 1)
+                {
+                    float area = 1 * (coordinates[i].Item2 * coordinates[i].Item2 * coordinates[i].Item2);
+                    productArea += area;
+                }
+                else
+                {
+                    if (i % 2 == 1)
+                    {
+                        float area = 4 * (coordinates[i].Item2 * coordinates[i].Item2 * coordinates[i].Item2);
+                        productArea += area;
+                    }
+                    else
+                    {
+                        float area = 2 * (coordinates[i].Item2 * coordinates[i].Item2 * coordinates[i].Item2);
+                        productArea += area;
+                    }
+                }
+            }
+
+            float result = 0.21922f * productArea;
+            Debug.Log("IYY is : " + result);
         }
 
         public void MomentsOfInertia(System.Collections.Generic.List<Tuple<float, float>> coordinates)
