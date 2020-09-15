@@ -17,57 +17,7 @@ namespace Assets.Scripts
         int splitSize = 50;
         void Start()
         {
-
-            //try
-            //{
-            //    SliceMeshVol meshVolume = new SliceMeshVol();
-
-            //    // Mesh cut to flatten one surface
-            //    GameObject[] halfHull = gameObject.AddComponent<RuntimeShatterExample>().SlicedShipHullHorizontal(0.007f);
-
-            //    GameObject upperHalfHull = halfHull[0];
-
-            //    float totalLength = 50.52903f;
-            //    float currentLength = -20.705647f;
-            //    float maxLength = 24.77048f;
-            //    float equalChunk = 5.052903f;
-
-            //    List<GameObject> slicedStations = new List<GameObject>();
-
-            //    // GameObject[] slicedHulls = upperHalfHull.AddComponent<RuntimeShatterExample>().SlicedVerticalShipHull(-15.65274f, upperHalfHull);
-            //    // var meshed = slicedHulls[0].GetComponent<MeshFilter>().sharedMesh;
-            //    // var maxX = meshed.vertices.Max(x => x.x);
-            //    // Debug.Log("Current length : " + currentLength + " x ordinate is : " + maxX + " :::: y ordinate is :  " + meshed.vertices.Where(p => p.x == maxX).Max(que => que.y));
-
-
-            //    //foreach(var item in meshed.vertices.Where(x=>x.x== maxX))
-            //    // {
-            //    //     Debug.Log("y length : " + item.y);
-            //    // }
-
-
-            //    for (int i = 0; i < 10; i++)
-            //    {
-            //        // [1] represent lower hull
-            //        GameObject[] slicedHulls = upperHalfHull.AddComponent<RuntimeShatterExample>().SlicedVerticalShipHull(currentLength, upperHalfHull);
-            //        //slicedStations.Add(slicedHulls[0]);
-
-            //        var meshed = slicedHulls[0].GetComponent<MeshFilter>().sharedMesh;
-            //        var maxX = meshed.vertices.Max(x => x.x);
-
-            //        Debug.Log("Current length : " + currentLength + " x ordinate is : " + slicedHulls[0].GetComponent<Renderer>().bounds.size.x + " :::: y ordinate is :  " + slicedHulls[0].GetComponent<Renderer>().bounds.size.y);
-
-            //        currentLength += equalChunk;
-            //    }
-            //}
-            //catch (Exception ex)
-            //{
-            //    Debug.Log("Exception : " + ex.ToString());
-            //}
-
-
             applySimpson();
-            //applySimpsonForIntactShip();
         }
 
         public void applySimpson()
@@ -76,8 +26,7 @@ namespace Assets.Scripts
             {
                 System.Collections.Generic.List<Tuple<float, float>> coordinates = new System.Collections.Generic.List<Tuple<float, float>>();
 
- 
-                GameObject submergedHull1 = gameObject.AddComponent<RuntimeShatterExample>().SlicedShipHullAlongZ(3.031006f, false, false , null)[1];// GetSubmergedHull();
+                GameObject submergedHull1 = gameObject.AddComponent<RuntimeShatterExample>().SlicedShipHullAlongZ(3.032006f, false, false, null)[1];// GetSubmergedHull();
 
                 GameObject submergedHull = gameObject.AddComponent<RuntimeShatterExample>().SlicedShipHullAlongZ(3.030006f, true, false, submergedHull1)[0];// GetSubmergedHull();
 
@@ -85,14 +34,7 @@ namespace Assets.Scripts
 
                 GameObject upperHalfHull = halfHull[0];
 
-                //GetAllPointsAlongHull(upperHalfHull.GetComponent<MeshFilter>().sharedMesh);
-
-                ////var splittt = 14.64324f;
-                ////GameObject[] slicedHulls = upperHalfHull.AddComponent<RuntimeShatterExample>().SlicedVerticalShipHull(splittt, upperHalfHull, true, true);
-                ////Debug.Log(" Y Axis : " + slicedHulls[0].GetComponent<MeshFilter>().sharedMesh.vertices.Where(x => x.x == splittt).Max(z => z.y));
-
                 Mesh mesh = upperHalfHull.GetComponent<MeshFilter>().sharedMesh;
-
 
                 var totalLength = Math.Abs(mesh.vertices.Min(x => x.x)) + Math.Abs(mesh.vertices.Max(x => x.x));
 
@@ -102,8 +44,6 @@ namespace Assets.Scripts
                 float currentLength = mesh.vertices.Min(x => x.x) + equalChunk;
 
                 coordinates.Add(new Tuple<float, float>(mesh.vertices.Min(x => x.x), 0));
-
-                float areaUsingIntegral = 0.0f;
 
                 for (int i = 0; i < splitSize; i++)
                 {
@@ -136,37 +76,20 @@ namespace Assets.Scripts
                         coordinates.Add(new Tuple<float, float>(currentLength, 3.889421f));
                     }
                     currentLength += equalChunk;
-
-                    // Debug.Log("Current length : " + currentLength);
                 }
 
                 var area = CalculateArea(coordinates);
 
-                 Debug.Log("Waterplane area is :  " + area * 2);
+                Debug.Log("Waterplane area is :  " + area * 2);
 
-                CalculateLCF(coordinates, area*2, 0.98649f);
-
-                //CalculateCentroidFromVolume centroidFromVol = new CalculateCentroidFromVolume();
-                //centroidFromVol.CalculateLCF(submergedHull.GetComponent<MeshFilter>().sharedMesh);
-
-                //CalculateLCF(coordinates, 2 * area, 0.98649f);// add script of centroid from volume and x axis is ans
-                // MomentsOfInertia(coordinates,  area, 0.98649f);
-
-                // MomentsOfInertia(coordinates);
-                // CalculateAreaForMoment(coordinates);
-
-                // SecondMomentOfInertia(coordinates);
+                CalculateLCF(coordinates, area * 2, 0.98649f);
 
                 CalculateIX(coordinates);
-
-               // Debug.Log("Cx : " + CalculateCOFx(coordinates));
-
             }
             catch (Exception ex)
             {
                 Debug.Log("Exception : " + ex.ToString());
             }
-
         }
 
         public void applySimpsonForIntactShip()
@@ -340,7 +263,7 @@ namespace Assets.Scripts
             }
 
             Debug.Log("Water plane area : " + waterPlaneArea + " Product Area : " + productArea);
-            float result = ((2 / waterPlaneArea) * (intervalLength /3)) * productArea;
+            float result = ((2 / waterPlaneArea) * (intervalLength / 3)) * productArea;
 
             Debug.Log("LCF is : " + result);
         }
@@ -353,12 +276,12 @@ namespace Assets.Scripts
             {
                 if (i == 0)
                 {
-                    float area =  1* (coordinates[i].Item2 * coordinates[i].Item2 * coordinates[i].Item2);
+                    float area = 1 * (coordinates[i].Item2 * coordinates[i].Item2 * coordinates[i].Item2);
                     productArea += area;
                 }
                 else if (i == coordinates.Count() - 1)
                 {
-                    float area =  1 * (coordinates[i].Item2 * coordinates[i].Item2 * coordinates[i].Item2);
+                    float area = 1 * (coordinates[i].Item2 * coordinates[i].Item2 * coordinates[i].Item2);
                     productArea += area;
                 }
                 else
@@ -370,12 +293,12 @@ namespace Assets.Scripts
                     }
                     else
                     {
-                        float area =  2 * (coordinates[i].Item2 * coordinates[i].Item2 * coordinates[i].Item2);
+                        float area = 2 * (coordinates[i].Item2 * coordinates[i].Item2 * coordinates[i].Item2);
                         productArea += area;
                     }
                 }
             }
-       
+
             float result = 0.21922f * productArea;
             Debug.Log("IXX is : " + result);
         }
@@ -416,7 +339,7 @@ namespace Assets.Scripts
         }
 
         public void MomentsOfInertia(System.Collections.Generic.List<Tuple<float, float>> coordinates)
-        { 
+        {
             var finalArea = 0.0f;
             for (int i = 0; i < coordinates.Count(); i++)
             {
@@ -446,7 +369,7 @@ namespace Assets.Scripts
             }
             finalArea = 0.65766f * finalArea;
 
-            Debug.Log("Iy : "+  2*finalArea);
+            Debug.Log("Iy : " + 2 * finalArea);
         }
 
         public float CalculateAreaForMoment(System.Collections.Generic.List<Tuple<float, float>> coordinates)
@@ -457,7 +380,7 @@ namespace Assets.Scripts
                 if (i == 0)
                 {
                     // Debug.Log("First i : " + i + " and value : " + coordinates[i].Item2);
-                    finalArea += coordinates[i].Item1 * 1 * (coordinates[i].Item2 *  coordinates[i].Item2 * coordinates[i].Item2);
+                    finalArea += coordinates[i].Item1 * 1 * (coordinates[i].Item2 * coordinates[i].Item2 * coordinates[i].Item2);
                 }
                 else if (i == coordinates.Count() - 1)
                 {
@@ -469,7 +392,7 @@ namespace Assets.Scripts
                     if (i % 2 == 1)
                     {
                         //Debug.Log("Multiply by 4 for i : " + i + " and value : " + coordinates[i].Item2);
-                        finalArea += coordinates[i].Item1 * 4 * (coordinates[i].Item2 *  coordinates[i].Item2 * coordinates[i].Item2);
+                        finalArea += coordinates[i].Item1 * 4 * (coordinates[i].Item2 * coordinates[i].Item2 * coordinates[i].Item2);
                     }
                     else
                     {
@@ -514,7 +437,7 @@ namespace Assets.Scripts
                 {
                     if (i % 2 == 1)
                     {
-                        finalArea += coordinates[i].Item2 *4 * (coordinates[i].Item1 * coordinates[i].Item1);
+                        finalArea += coordinates[i].Item2 * 4 * (coordinates[i].Item1 * coordinates[i].Item1);
                     }
                     else
                     {
@@ -523,9 +446,9 @@ namespace Assets.Scripts
                 }
             }
 
-            finalArea = (0.98649f/3) * finalArea;
+            finalArea = (0.98649f / 3) * finalArea;
 
-            Debug.Log("Iy : " +  finalArea);
+            Debug.Log("Iy : " + finalArea);
         }
 
 
@@ -558,7 +481,7 @@ namespace Assets.Scripts
                     }
                 }
             }
-            finalArea = ((0.98649f * finalArea) / 3)/347.57f;
+            finalArea = ((0.98649f * finalArea) / 3) / 347.57f;
 
             return finalArea;
         }

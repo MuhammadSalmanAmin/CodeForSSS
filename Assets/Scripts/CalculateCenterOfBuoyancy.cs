@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Schema;
 using UnityEngine;
 
 namespace Assets.Scripts
@@ -19,15 +20,11 @@ namespace Assets.Scripts
             GameObject submergedHull = null;
             try
             {
-                float initialLoad = 411.0f;
-                float addedLoad = 535.0f;
                 float density = 1.025f;
-
-                float exactSubmergedVolume = 1017.58f;
+                float exactSubmergedVolume = 654.413f;
 
                 float currentSubmergedVolume = 0.0f;
-                float scale = 3.9f;
-
+                float scale = 3.0f;
 
                 SliceMeshVol meshVolume = new SliceMeshVol();
                 while (currentSubmergedVolume < exactSubmergedVolume && scale < 5)
@@ -43,15 +40,15 @@ namespace Assets.Scripts
                     scale += 0.002f;
                 }
 
-                Debug.Log("Total Displacement : " + (654.413f * 1.025f));
+                Debug.Log("Total Displacement : " + (exactSubmergedVolume * 1.025f));
                 Debug.Log("Volume : " + currentSubmergedVolume);
                 Debug.Log("Draft Amidships : " + scale);
                 Debug.Log("Immersed Depth : " + scale);
 
-                var wettedHull = gameObject.AddComponent<RuntimeShatterExample>().SlicedShipHullAlongZ(scale, false, false, null);
-            
+                var wettedHull = gameObject.AddComponent<RuntimeShatterExample>().SlicedShipHullAlongZ(3.0f, true, true, null);
+ 
                 CalculateCentroidFromArea centroidFromArea = new CalculateCentroidFromArea();
-                var wettedArea = centroidFromArea.AreaOfMesh(gameObject.GetComponent<MeshFilter>().sharedMesh) - centroidFromArea.AreaOfMesh(wettedHull[0].GetComponent<MeshFilter>().sharedMesh);
+                var wettedArea = centroidFromArea.AreaOfMesh(wettedHull[1].GetComponent<MeshFilter>().sharedMesh);
 
                 Debug.Log("Area is : " + wettedArea);
 
