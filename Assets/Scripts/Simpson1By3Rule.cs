@@ -14,7 +14,7 @@ namespace Assets.Scripts
 {
     public class Simpson1By3Rule : MonoBehaviour
     {
-        int splitSize = 50;
+        int splitSize = 70;
         void Start()
         {
             applySimpson();
@@ -50,26 +50,34 @@ namespace Assets.Scripts
                     GameObject[] slicedHulls = null;
                     if (currentLength > 0)
                     {
-                        slicedHulls = upperHalfHull.AddComponent<RuntimeShatterExample>().SlicedVerticalShipHull(currentLength, upperHalfHull, false, false);
+                        slicedHulls = upperHalfHull.AddComponent<RuntimeShatterExample>().SlicedVerticalShipHull(currentLength, upperHalfHull, false, true);
 
                     }
                     else
                     {
-                        slicedHulls = upperHalfHull.AddComponent<RuntimeShatterExample>().SlicedVerticalShipHull(currentLength, upperHalfHull, false, false);
+                        slicedHulls = upperHalfHull.AddComponent<RuntimeShatterExample>().SlicedVerticalShipHull(currentLength, upperHalfHull, true, false);
                     }
                     if (slicedHulls != null)
                     {
+                        float sliceY = 0.0f;
                         Mesh meshed = null;
                         if (currentLength > 0)
                         {
                             meshed = slicedHulls[1].GetComponent<MeshFilter>().sharedMesh;
+                            sliceY = meshed.vertices.Where(x => x.x == currentLength).Max(z => z.y);
                         }
                         else
                         {
                             meshed = slicedHulls[0].GetComponent<MeshFilter>().sharedMesh;
+                            sliceY = meshed.vertices.Where(x => x.x == currentLength).Max(z => z.y);
                         }
 
-                        coordinates.Add(new Tuple<float, float>(currentLength, meshed.vertices.Where(x => x.x == currentLength).Max(z => z.y)));
+                        //Debug.Log("For x  : " + currentLength);
+                        //Debug.Log("Y value from mesh is  : " + sliceY);
+                        //Debug.Log("Y value from vertices : " + meshed.vertices.Where(x => x.x == currentLength).Max(z => z.y));
+
+                        coordinates.Add(new Tuple<float, float>(currentLength, sliceY));
+                        //coordinates.Add(new Tuple<float, float>(currentLength, meshed.vertices.Where(x => x.x == currentLength).Max(z => z.y)));
                     }
                     else
                     {
@@ -78,13 +86,32 @@ namespace Assets.Scripts
                     currentLength += equalChunk;
                 }
 
-                var area = CalculateArea(coordinates);
+               // var area = CalculateArea(coordinates, equalChunk);
 
-                Debug.Log("Waterplane area is :  " + area * 2);
+               // Debug.Log("Waterplane area is :  " + area * 2);
 
-                CalculateLCF(coordinates, area * 2, 0.98649f);
+                //CalculateLCF(coordinates, area * 2, 0.98649f);
 
                 CalculateIX(coordinates);
+
+                SecondMomentOfInertia(coordinates, equalChunk);
+
+                //coordinates = new System.Collections.Generic.List<Tuple<float, float>>();
+                //coordinates.Add(new Tuple<float, float>(0f, 0.5f));
+                //coordinates.Add(new Tuple<float, float>(5f, 2f));
+                //coordinates.Add(new Tuple<float, float>(8f, 1.5f));
+                //coordinates.Add(new Tuple<float, float>(10.5f, 4f));
+                //coordinates.Add(new Tuple<float, float>(12.5f, 2f));
+                //coordinates.Add(new Tuple<float, float>(13.5f, 4f));
+                //coordinates.Add(new Tuple<float, float>(13.5f,2f));
+                //coordinates.Add(new Tuple<float, float>(12.5f, 4f));
+                //coordinates.Add(new Tuple<float, float>(11f, 2f));
+                //coordinates.Add(new Tuple<float, float>(7.5f, 4f));
+                //coordinates.Add(new Tuple<float, float>(3f, 1.5f));
+                //coordinates.Add(new Tuple<float, float>(1f, 2f));
+                //coordinates.Add(new Tuple<float, float>(0f, 0.5f));
+
+                //SecondMomentOfInertia(coordinates, equalChunk);
             }
             catch (Exception ex)
             {
@@ -170,7 +197,7 @@ namespace Assets.Scripts
             }
 
         }
-        public float CalculateArea(System.Collections.Generic.List<Tuple<float, float>> coordinates)
+        public float CalculateArea(System.Collections.Generic.List<Tuple<float, float>> coordinates, float equalChunk)
         {
             var finalArea = 0.0f;
             for (int i = 0; i < coordinates.Count(); i++)
@@ -199,7 +226,7 @@ namespace Assets.Scripts
                     }
                 }
             }
-            finalArea = (0.98649f * finalArea) / 3;
+            finalArea = (equalChunk * finalArea) / 3;
 
             return finalArea;
         }
@@ -303,189 +330,128 @@ namespace Assets.Scripts
             Debug.Log("IXX is : " + result);
         }
 
-        public void CalculateIYY(System.Collections.Generic.List<Tuple<float, float>> coordinates)
+        public void SecondMomentOfInertia(System.Collections.Generic.List<Tuple<float, float>> coordinates,float equalChunk)
         {
-            float productArea = 0.0f;
-
-            for (int i = 0; i < coordinates.Count(); i++)
-            {
-                if (i == 0)
-                {
-                    float area = 1 * (coordinates[i].Item2 * coordinates[i].Item2 * coordinates[i].Item2);
-                    productArea += area;
-                }
-                else if (i == coordinates.Count() - 1)
-                {
-                    float area = 1 * (coordinates[i].Item2 * coordinates[i].Item2 * coordinates[i].Item2);
-                    productArea += area;
-                }
-                else
-                {
-                    if (i % 2 == 1)
-                    {
-                        float area = 4 * (coordinates[i].Item2 * coordinates[i].Item2 * coordinates[i].Item2);
-                        productArea += area;
-                    }
-                    else
-                    {
-                        float area = 2 * (coordinates[i].Item2 * coordinates[i].Item2 * coordinates[i].Item2);
-                        productArea += area;
-                    }
-                }
-            }
-
-            float result = 0.21922f * productArea;
-            Debug.Log("IYY is : " + result);
-        }
-
-        public void MomentsOfInertia(System.Collections.Generic.List<Tuple<float, float>> coordinates)
-        {
-            var finalArea = 0.0f;
-            for (int i = 0; i < coordinates.Count(); i++)
-            {
-                if (i == 0)
-                {
-                    // Debug.Log("First i : " + i + " and value : " + coordinates[i].Item2);
-                    finalArea += coordinates[i].Item2 * 1 * (coordinates[i].Item1 * coordinates[i].Item1 * coordinates[i].Item1);
-                }
-                else if (i == coordinates.Count() - 1)
-                {
-                    //Debug.Log("Last i : " + i + " and value : " + coordinates[i].Item2);
-                    finalArea += coordinates[i].Item2 * 1 * (coordinates[i].Item1 * coordinates[i].Item1 * coordinates[i].Item1);
-                }
-                else
-                {
-                    if (i % 2 == 1)
-                    {
-                        //Debug.Log("Multiply by 4 for i : " + i + " and value : " + coordinates[i].Item2);
-                        finalArea += coordinates[i].Item2 * 4 * (coordinates[i].Item1 * coordinates[i].Item1 * coordinates[i].Item1);
-                    }
-                    else
-                    {
-                        // Debug.Log("Multiply by 2 for i : " + i + " and value : " + coordinates[i].Item2);
-                        finalArea += coordinates[i].Item2 * 2 * (coordinates[i].Item1 * coordinates[i].Item1 * coordinates[i].Item1);
-                    }
-                }
-            }
-            finalArea = 0.65766f * finalArea;
-
-            Debug.Log("Iy : " + 2 * finalArea);
-        }
-
-        public float CalculateAreaForMoment(System.Collections.Generic.List<Tuple<float, float>> coordinates)
-        {
-            var finalArea = 0.0f;
-            for (int i = 0; i < coordinates.Count(); i++)
-            {
-                if (i == 0)
-                {
-                    // Debug.Log("First i : " + i + " and value : " + coordinates[i].Item2);
-                    finalArea += coordinates[i].Item1 * 1 * (coordinates[i].Item2 * coordinates[i].Item2 * coordinates[i].Item2);
-                }
-                else if (i == coordinates.Count() - 1)
-                {
-                    //Debug.Log("Last i : " + i + " and value : " + coordinates[i].Item2);
-                    finalArea += coordinates[i].Item1 * 1 * (coordinates[i].Item2 * coordinates[i].Item2 * coordinates[i].Item2);
-                }
-                else
-                {
-                    if (i % 2 == 1)
-                    {
-                        //Debug.Log("Multiply by 4 for i : " + i + " and value : " + coordinates[i].Item2);
-                        finalArea += coordinates[i].Item1 * 4 * (coordinates[i].Item2 * coordinates[i].Item2 * coordinates[i].Item2);
-                    }
-                    else
-                    {
-                        // Debug.Log("Multiply by 2 for i : " + i + " and value : " + coordinates[i].Item2);
-                        finalArea += coordinates[i].Item1 * 2 * (coordinates[i].Item2 * coordinates[i].Item2 * coordinates[i].Item2);
-                    }
-                }
-            }
-            finalArea = 0.65766f * finalArea;
-
-            Debug.Log("Ix : " + 2 * finalArea);
-            return finalArea;
-        }
-
-        public void SecondMomentOfInertia(System.Collections.Generic.List<Tuple<float, float>> coordinates)
-        {
-            //coordinates = new System.Collections.Generic.List<Tuple<float, float>>();
-            //coordinates.Add(new Tuple<float, float>(0f, 0.11f));
-            //coordinates.Add(new Tuple<float, float>(0.2f, 0.3f));
-            //coordinates.Add(new Tuple<float, float>(0.4f, 0.6f));
-            //coordinates.Add(new Tuple<float, float>(0.6f, 0.9f));
-            //coordinates.Add(new Tuple<float, float>(0.8f, 1.05f));
-            //coordinates.Add(new Tuple<float, float>(1.0f, 1f));
-            //coordinates.Add(new Tuple<float, float>(1.2f, 0.7f));
-            //coordinates.Add(new Tuple<float, float>(1.4f, 0.4f));
-            //coordinates.Add(new Tuple<float, float>(1.6f, 0.2f));
-            //coordinates.Add(new Tuple<float, float>(1.8f, 0.1f));
-            //coordinates.Add(new Tuple<float, float>(2.0f, 0.05f));
-
-            var finalArea = 0.0f;
-            for (int i = 0; i < coordinates.Count(); i++)
-            {
-                if (i == 0)
-                {
-                    finalArea += coordinates[i].Item2 * 1 * (coordinates[i].Item1 * coordinates[i].Item1);
-                }
-                else if (i == coordinates.Count() - 1)
-                {
-                    finalArea += coordinates[i].Item2 * 1 * (coordinates[i].Item1 * coordinates[i].Item1);
-                }
-                else
-                {
-                    if (i % 2 == 1)
-                    {
-                        finalArea += coordinates[i].Item2 * 4 * (coordinates[i].Item1 * coordinates[i].Item1);
-                    }
-                    else
-                    {
-                        finalArea += coordinates[i].Item2 * 2 * (coordinates[i].Item1 * coordinates[i].Item1);
-                    }
-                }
-            }
-
-            finalArea = (0.98649f / 3) * finalArea;
-
-            Debug.Log("Iy : " + finalArea);
+            var area = FunctionOfArea(coordinates);
+      
+            FunctionOfFirstMoment(coordinates, equalChunk, area);
+            FunctionOfSecondMoment(coordinates, equalChunk, area);
         }
 
 
-        public float CalculateCOFx(System.Collections.Generic.List<Tuple<float, float>> coordinates)
+        public float FunctionOfArea(System.Collections.Generic.List<Tuple<float, float>> coordinates)
         {
             var finalArea = 0.0f;
+
             for (int i = 0; i < coordinates.Count(); i++)
             {
                 if (i == 0)
                 {
-                    // Debug.Log("First i : " + i + " and value : " + coordinates[i].Item2);
-                    finalArea += coordinates[i].Item1 * coordinates[i].Item2 * 1;
+                    finalArea +=  1 * (coordinates[i].Item2);
                 }
                 else if (i == coordinates.Count() - 1)
                 {
-                    //Debug.Log("Last i : " + i + " and value : " + coordinates[i].Item2);
-                    finalArea += coordinates[i].Item1 * coordinates[i].Item2 * 1;
+                    finalArea += 1 * (coordinates[i].Item2);
                 }
                 else
                 {
                     if (i % 2 == 1)
                     {
-                        //Debug.Log("Multiply by 4 for i : " + i + " and value : " + coordinates[i].Item2);
-                        finalArea += coordinates[i].Item1 * coordinates[i].Item2 * 4;
+                        finalArea += 4 * (coordinates[i].Item2);
                     }
                     else
                     {
-                        // Debug.Log("Multiply by 2 for i : " + i + " and value : " + coordinates[i].Item2);
-                        finalArea += coordinates[i].Item1 * coordinates[i].Item2 * 2;
+                        finalArea += 2 * (coordinates[i].Item2);
                     }
                 }
             }
-            finalArea = ((0.98649f * finalArea) / 3) / 347.57f;
 
             return finalArea;
         }
 
+        public float FunctionOfFirstMoment(System.Collections.Generic.List<Tuple<float, float>> coordinates,float equalChunk,float functionOfArea)
+        {
+            var finalArea = 0.0f;
+
+            for (int i = 0; i < coordinates.Count(); i++)
+            {
+                if (i == 0)
+                {
+                    var fa = 1 * (coordinates[i].Item2);
+                    finalArea += fa * coordinates[i].Item1;
+                }
+                else if (i == coordinates.Count() - 1)
+                {
+                    var fa = 1 * (coordinates[i].Item2);
+                    finalArea += fa * coordinates[i].Item1;
+                }
+                else
+                {
+                    if (i % 2 == 1)
+                    {
+                        var fa = 4 * (coordinates[i].Item2);
+                        finalArea += fa * coordinates[i].Item1;
+                    }
+                    else
+                    {
+                        var fa = 2 * (coordinates[i].Item2);
+                        finalArea += fa * coordinates[i].Item1;
+                    }
+                }
+            }
+
+            var centroid = (finalArea * equalChunk) / functionOfArea;
+
+            Debug.Log("Center ab8 AP :  " + centroid);
+
+            var actualArea = 2 * (equalChunk / 3) * functionOfArea;
+
+            Debug.Log("actualArea :  " + actualArea);
+
+            return centroid;
+        }
+
+        public float FunctionOfSecondMoment(System.Collections.Generic.List<Tuple<float, float>> coordinates, float equalChunk, float functionOfArea)
+        {
+            var finalArea = 0.0f;
+
+            for (int i = 0; i < coordinates.Count(); i++)
+            {
+                if (i == 0)
+                {
+                    var fa = 1 * (coordinates[i].Item2);
+                    var st = fa * coordinates[i].Item1;
+                    finalArea += st * coordinates[i].Item1;
+                }
+                else if (i == coordinates.Count() - 1)
+                {
+                    var fa = 1 * (coordinates[i].Item2);
+                    var st = fa * coordinates[i].Item1;
+                    finalArea += st * coordinates[i].Item1;
+                }
+                else
+                {
+                    if (i % 2 == 1)
+                    {
+                        var fa = 4 * (coordinates[i].Item2);
+                        var st = fa * coordinates[i].Item1;
+                        finalArea += st * coordinates[i].Item1;
+                    }
+                    else
+                    {
+                        var fa = 2 * (coordinates[i].Item2);
+                        var st = fa * coordinates[i].Item1;
+                        finalArea += st * coordinates[i].Item1;
+                    }
+                }
+            }
+
+            var secondMomentOfArea = 2 * (equalChunk/3) * (equalChunk * equalChunk) * finalArea;
+
+            Debug.Log("MOI ab8 AP :  " + secondMomentOfArea);
+
+            return secondMomentOfArea;
+        }
     }
 
 }
