@@ -13,21 +13,27 @@ namespace Assets.Scripts
         void Start()
         {
             ///
-            CalculateBuoyancy();
+            // CalculateBuoyancy(1017f,3.9f);
+            SLiceIt();
         }
-        public GameObject CalculateBuoyancy()
+        public Tuple<float,float> CalculateBuoyancy(float volume,float inScale)
         {
+            Tuple<float, float> returnValue = new Tuple<float, float>(0,0);
             GameObject submergedHull = null;
             try
             {
                 float density = 1.025f;
-                float exactSubmergedVolume = 654.413f;
+
+                float exactSubmergedVolume = volume;
+                float scale = inScale ;
 
                 float currentSubmergedVolume = 0.0f;
-                float scale = 3.0f;
 
                 SliceMeshVol meshVolume = new SliceMeshVol();
-                while (currentSubmergedVolume < exactSubmergedVolume && scale < 5)
+
+                float previousScale = 0.0f;
+
+                while (currentSubmergedVolume < exactSubmergedVolume  && scale < 5.0f  )
                 {
                     GameObject[] result = gameObject.AddComponent<RuntimeShatterExample>().SlicedShipHullAlongZ(scale, false, false, null);
                     currentSubmergedVolume = meshVolume.VolumeOfMesh(result[1].GetComponent<MeshFilter>().sharedMesh) / density;
@@ -37,15 +43,18 @@ namespace Assets.Scripts
                     string msg = "Volume for draught :   " + scale + " is : " + currentSubmergedVolume + " cube units.";
                     Debug.Log(msg);
 
+                    previousScale = scale;
                     scale += 0.002f;
                 }
+
+                returnValue = new Tuple<float, float>(previousScale, scale);
 
                 Debug.Log("Total Displacement : " + (exactSubmergedVolume * 1.025f));
                 Debug.Log("Volume : " + currentSubmergedVolume);
                 Debug.Log("Draft Amidships : " + scale);
                 Debug.Log("Immersed Depth : " + scale);
 
-                var wettedHull = gameObject.AddComponent<RuntimeShatterExample>().SlicedShipHullAlongZ(3.0f, true, true, null);
+                var wettedHull = gameObject.AddComponent<RuntimeShatterExample>().SlicedShipHullAlongZ(scale, true, true, null);
  
                 CalculateCentroidFromArea centroidFromArea = new CalculateCentroidFromArea();
                 var wettedArea = centroidFromArea.AreaOfMesh(wettedHull[1].GetComponent<MeshFilter>().sharedMesh);
@@ -62,7 +71,15 @@ namespace Assets.Scripts
                 Debug.Log(ex.ToString());
             }
 
-            return submergedHull;
+            return returnValue;
+        }
+
+
+        public void SLiceIt()
+        {
+          
+            GameObject[] result = gameObject.AddComponent<RuntimeShatterExample>().SlicedShipHullHorizontal(.1f, true, true, null);
+
         }
     }
 }

@@ -94,7 +94,7 @@ public class RuntimeShatterExample : MonoBehaviour
     {
         Vector3 direction = new Vector3(0f, 0f, draught);
         Vector3 positionnew = new Vector3(0f, 0f, draught);
-
+     
         var plane = new EzySlice.Plane(positionnew, direction);
         return plane;
     }
