@@ -143,7 +143,7 @@ public class CalculateCentroidFromVolume : MonoBehaviour
             volume_sum += volume;
         }
         centroid /= volume_sum;
-        Debug.Log("KB : " + centroid.z);
+        //Debug.Log("KB : " + centroid.z);
         return (centroid.z);
     }
 

@@ -14,46 +14,46 @@ namespace Assets.Scripts
 {
     public class Simpson1By3Rule : MonoBehaviour
     {
-        int splitSize = 1000;
+        static float initialMass = 421.7f;
+        static float addedMass = 670.8f;
+        static int splitSize = 1000;
+        static float locationAtX = 25f;
+        static float CLPosition = -5f;
+
         void Start()
         {
-            float volume = 1017f;
-            float scale = 3.9f;
-
-            //  CalculateCenterOfBuoyancy centerOfBuoyancy = new CalculateCenterOfBuoyancy();
-            // var result =   CalculateBuoyancy(volume, scale);
-
-            // Debug.Log(result);
-             
-            applySimpson(2.778f, 2.776f);
-
-            //SLiceIt();
+            float totalDisplacement = initialMass + addedMass;
+            applySimpson(addedMass,totalDisplacement,3.002008f, 3.000008f, locationAtX);
         }
 
-        public void applySimpson(float maxSlicedPoint, float minSlicedPoint)
+        public void applySimpson(float addedMass,float totalDisplacement,float maxSlicedPoint, float minSlicedPoint,float locationAtX)
         {
             try
             {
+                #region Working
+
                 var maxSlicer = maxSlicedPoint;
                 var minSlicer = minSlicedPoint;
 
                 System.Collections.Generic.List<Tuple<float, float>> coordinates = new System.Collections.Generic.List<Tuple<float, float>>();
 
+                GameObject originalObject = gameObject;
+
                 GameObject submergedHull1 = gameObject.AddComponent<RuntimeShatterExample>().SlicedShipHullAlongZ(maxSlicer, false, false, null)[1];// GetSubmergedHull();
 
-                GameObject submergedHull = gameObject.AddComponent<RuntimeShatterExample>().SlicedShipHullAlongZ(minSlicer, true, false, submergedHull1)[0];// GetSubmergedHull();
+                GameObject submergedHull = gameObject.AddComponent<RuntimeShatterExample>().SlicedShipHullAlongZ(minSlicer, false, false, submergedHull1)[0];// GetSubmergedHull();
 
-                GameObject[] halfHull = gameObject.AddComponent<RuntimeShatterExample>().SlicedShipHullHorizontal(0.005f, true, false, submergedHull);
+                GameObject[] halfHull = gameObject.AddComponent<RuntimeShatterExample>().SlicedShipHullHorizontal(0.005f, true, true, submergedHull);
 
                 GameObject upperHalfHull = halfHull[0];
 
                 Mesh mesh = upperHalfHull.GetComponent<MeshFilter>().sharedMesh;
 
-                var totalLength = Math.Abs(mesh.vertices.Min(x => x.x)) + Math.Abs(mesh.vertices.Max(x => x.x));
+                var waterplaneLength = Math.Abs(mesh.vertices.Min(x => x.x)) + Math.Abs(mesh.vertices.Max(x => x.x));
 
-                Debug.Log("WL Length  :  " + totalLength);
+                Debug.Log("WL Length  :  " + waterplaneLength);
 
-                float equalChunk = totalLength / splitSize;
+                float equalChunk = waterplaneLength / splitSize;
                 float currentLength = mesh.vertices.Min(x => x.x) + equalChunk;
 
                 coordinates.Add(new Tuple<float, float>(mesh.vertices.Min(x => x.x), 0));
@@ -112,16 +112,83 @@ namespace Assets.Scripts
 
                 #region Verified One
 
-                CalculateIX(coordinates, equalChunk);
-                COF(coordinates, equalChunk, currentSubmergedVolume);
+                var Ix = CalculateIX(coordinates, equalChunk);
+                var gml = COF(coordinates, equalChunk, currentSubmergedVolume);
 
                 #endregion
+
+                #endregion
+
+                CalculateWaterplaneArea wpArea = new CalculateWaterplaneArea();
+                var waterplaneArea = wpArea.Caculate(minSlicedPoint, maxSlicedPoint, originalObject);
+
+                CalculateTrim(addedMass, totalDisplacement, locationAtX, waterplaneArea, waterplaneLength, gml);
+
+                CalculateList(addedMass, totalDisplacement, Ix, CLPosition , gml,maxSlicedPoint, originalObject);
             }
             catch (Exception ex)
             {
                 Debug.Log("Exception : " + ex.ToString());
             }
         }
+
+        #region Trim
+        public void CalculateTrim(float addedMass ,float totalDisplacement,float locationATX,float waterplaneArea ,float waterplaneLength ,float gml )
+        {
+            float mctc = (totalDisplacement * gml) / (waterplaneLength * 100);
+            Debug.Log("Mctc is : " + mctc);
+
+            float angleInRadians = (addedMass * locationATX) / (totalDisplacement * gml);
+            Debug.Log("Angle in radians : " + angleInRadians);
+
+            double angleInDegree = angleInRadians * (180 / Math.PI);
+            Debug.Log("Angle in degree : " + angleInDegree);
+
+            double trim = angleInDegree * waterplaneLength;
+            Debug.Log("Trim : " + trim);
+
+            double tpi = (waterplaneArea * 1.025) / 100 ;
+            Debug.Log("TPI : " + tpi);
+        }
+
+        #endregion
+
+        #region List
+
+        public void CalculateList(float addedMass, float totalDisplacement, float MomentOfInertiaIx, float CLPosition, float gml,float maxSlice,GameObject gameObject)
+        {
+            float FixedKG = 3.5f;
+            float KgZValue = 0.0f;
+
+            float BMt = MomentOfInertiaIx / totalDisplacement;
+            Debug.Log("BMt is : " + BMt);
+
+            CalculateCentroidFromVolume centroidFromVolume = new CalculateCentroidFromVolume();
+
+            GameObject[] result = gameObject.GetComponent<RuntimeShatterExample>().SlicedShipHullAlongZ(maxSlice, false, false, null);
+            var KB = centroidFromVolume.CalculateKB(result[1].GetComponent<MeshFilter>().sharedMesh);
+            Debug.Log("KB is : " + KB);
+
+            var KM = KB + BMt;
+            Debug.Log("KM is : " + KM);
+
+            var initialDisplacement = totalDisplacement - addedMass;
+
+            var overallKG = ((initialDisplacement * FixedKG) + (addedMass * KgZValue)) / totalDisplacement;
+            Debug.Log("Overall KG is : " + overallKG);
+
+            var GM = KM - overallKG;
+            Debug.Log("GM is : " + GM);
+
+            var moment = addedMass * CLPosition;
+            Debug.Log("moment is : " + moment);
+
+            var ListAngle = moment / (totalDisplacement * GM) ;
+            Debug.Log("List Angle is : " + ListAngle);
+        }
+
+
+        #endregion
 
         #region No Reference
         public float CalculateArea(System.Collections.Generic.List<Tuple<float, float>> coordinates, float equalChunk)
@@ -174,7 +241,7 @@ namespace Assets.Scripts
             Debug.Log("LCF is : " + result);
         }
 
-        public void CalculateIX(System.Collections.Generic.List<Tuple<float, float>> coordinates, float equalChunk)
+        public float CalculateIX(System.Collections.Generic.List<Tuple<float, float>> coordinates, float equalChunk)
         {
             float productArea = 0.0f;
 
@@ -206,7 +273,9 @@ namespace Assets.Scripts
             }
 
             float result = ((2 * equalChunk) / 9) * productArea;
-            Debug.Log("IXX is : " + result);
+            Debug.Log("Moment of Inertia Ix is : " + result);
+
+            return result;
         }
 
         #endregion
@@ -366,7 +435,7 @@ namespace Assets.Scripts
             Debug.Log("Iyy is : " + 2 * final);
             Debug.Log("GML is : " + gml);
 
-            return result;
+            return gml;
         }
 
         #endregion
