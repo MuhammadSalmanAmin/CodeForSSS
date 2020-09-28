@@ -13,8 +13,8 @@ namespace Assets.Scripts
         void Start()
         {
             ///
-            // CalculateBuoyancy(1017f,3.9f);
-            SLiceIt();
+            CalculateBuoyancy(569.591f, 2.7f);
+           // SLiceIt();
         }
         public Tuple<float,float> CalculateBuoyancy(float volume,float inScale)
         {
@@ -77,9 +77,81 @@ namespace Assets.Scripts
 
         public void SLiceIt()
         {
-          
+            var splitSize = 10f;
             GameObject[] result = gameObject.AddComponent<RuntimeShatterExample>().SlicedShipHullHorizontal(.1f, true, true, null);
+            GameObject upperHalfHull = result[0];
 
+            Mesh mesh = upperHalfHull.GetComponent<MeshFilter>().sharedMesh;
+
+            var totalLength = Math.Abs(mesh.vertices.Min(x => x.x)) + Math.Abs(mesh.vertices.Max(x => x.x));
+
+            Debug.Log("WL Length  :  " + totalLength);
+
+            float equalChunk = totalLength / splitSize;
+            float currentLength = mesh.vertices.Min(x => x.x) + equalChunk;
+
+            System.Collections.Generic.List<Tuple<float, float>> coordinates = new System.Collections.Generic.List<Tuple<float, float>>();
+
+            coordinates.Add(new Tuple<float, float>(mesh.vertices.Min(x => x.x), 5));
+
+            SliceMeshVol meshVolume = new SliceMeshVol();
+
+            //int totalFailures = 0;
+
+            for (int i = 1; i <= splitSize; i++)
+            {
+                GameObject[] slicedHulls = null;
+                if (currentLength >= 0)
+                {
+                    slicedHulls = upperHalfHull.AddComponent<RuntimeShatterExample>().SlicedVerticalShipHull(currentLength, upperHalfHull, true, true);
+
+                }
+                else
+                {
+                    slicedHulls = upperHalfHull.AddComponent<RuntimeShatterExample>().SlicedVerticalShipHull(currentLength, upperHalfHull, true, true);
+                }
+                if (slicedHulls != null)
+                {
+                    float sliceY = 0.0f;
+                    Mesh meshed = null;
+                    if (currentLength == 0)
+                    {
+                        coordinates.Add(new Tuple<float, float>(currentLength, 5f));
+                    }
+                    else
+                    {
+                        if (currentLength > 0)
+                        {
+                            meshed = slicedHulls[1].GetComponent<MeshFilter>().sharedMesh;
+                        }
+                        else
+                        {
+                            meshed = slicedHulls[0].GetComponent<MeshFilter>().sharedMesh;
+                        }
+
+                        if (meshed.vertices.Any(x => x.x == currentLength))
+                        {
+                            sliceY = meshed.vertices.Where(x => x.x == currentLength).Max(z => z.y);
+                        }
+                        else
+                        {
+                            sliceY = coordinates[i - 1].Item2 + .00001f;
+                        }
+                        coordinates.Add(new Tuple<float, float>(currentLength, sliceY));
+                    }
+                }
+                else
+                {
+                    coordinates.Add(new Tuple<float, float>(currentLength, 5f));
+                }
+                currentLength += equalChunk;
+            }
+
+
+            foreach(var item in coordinates)
+            {
+                Debug.Log("FOr x : " + item.Item1 + ", Y is : " + item.Item2);
+            }
         }
     }
 }
