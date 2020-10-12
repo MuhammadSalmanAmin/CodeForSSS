@@ -13,10 +13,9 @@ namespace Assets.Scripts
         void Start()
         {
             ///
-            CalculateBuoyancy(569.591f, 2.7f);
-           // SLiceIt();
+            CalculateBuoyancy(670.8f, 3.0f);
         }
-        public Tuple<float,float> CalculateBuoyancy(float volume,float inScale)
+        public Tuple<float,float> CalculateBuoyancy(float volume,float inScale,GameObject inGameObject = null)
         {
             Tuple<float, float> returnValue = new Tuple<float, float>(0,0);
             GameObject submergedHull = null;
@@ -73,8 +72,6 @@ namespace Assets.Scripts
 
             return returnValue;
         }
-
-
         public void SLiceIt()
         {
             var splitSize = 10f;
@@ -103,12 +100,12 @@ namespace Assets.Scripts
                 GameObject[] slicedHulls = null;
                 if (currentLength >= 0)
                 {
-                    slicedHulls = upperHalfHull.AddComponent<RuntimeShatterExample>().SlicedVerticalShipHull(currentLength, upperHalfHull, true, true);
+                    slicedHulls = upperHalfHull.AddComponent<RuntimeShatterExample>().SlicedVerticalShipHull(currentLength,true,true, upperHalfHull);
 
                 }
                 else
                 {
-                    slicedHulls = upperHalfHull.AddComponent<RuntimeShatterExample>().SlicedVerticalShipHull(currentLength, upperHalfHull, true, true);
+                    slicedHulls = upperHalfHull.AddComponent<RuntimeShatterExample>().SlicedVerticalShipHull(currentLength,true,true, upperHalfHull);
                 }
                 if (slicedHulls != null)
                 {

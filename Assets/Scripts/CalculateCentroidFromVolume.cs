@@ -116,6 +116,7 @@ public class CalculateCentroidFromVolume : MonoBehaviour
         centroid /= volume_sum;
 
         Debug.Log("Centroid From Volume  -> Centroid : " + centroid);
+        Debug.Log("Volume is " + volume_sum + " cube units.");
 
         return (volume_sum);
     }
@@ -143,7 +144,7 @@ public class CalculateCentroidFromVolume : MonoBehaviour
             volume_sum += volume;
         }
         centroid /= volume_sum;
-        //Debug.Log("KB : " + centroid.z);
+       // Debug.Log("KB : " + centroid.z);
         return (centroid.z);
     }
 

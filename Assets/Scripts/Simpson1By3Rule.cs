@@ -15,7 +15,7 @@ namespace Assets.Scripts
     public class Simpson1By3Rule : MonoBehaviour
     {
         static float initialMass = 421.7f;
-        static float addedMass = 670.8f;
+        static float addedMass = 249.1f;
         static int splitSize = 1000;
         static float locationAtX = 25f;
         static float CLPosition = -5f;
@@ -23,7 +23,7 @@ namespace Assets.Scripts
         void Start()
         {
             float totalDisplacement = initialMass + addedMass;
-            applySimpson(addedMass,totalDisplacement,3.002008f, 3.000008f, locationAtX);
+            applySimpson(addedMass,totalDisplacement, 3.032001f, 3.030001f, locationAtX);
         }
 
         public void applySimpson(float addedMass,float totalDisplacement,float maxSlicedPoint, float minSlicedPoint,float locationAtX)
@@ -69,12 +69,12 @@ namespace Assets.Scripts
                     GameObject[] slicedHulls = null;
                     if (currentLength > 0)
                     {
-                        slicedHulls = upperHalfHull.AddComponent<RuntimeShatterExample>().SlicedVerticalShipHull(currentLength, upperHalfHull, false, false);
+                        slicedHulls = upperHalfHull.AddComponent<RuntimeShatterExample>().SlicedVerticalShipHull(currentLength, false, false, upperHalfHull);
 
                     }
                     else
                     {
-                        slicedHulls = upperHalfHull.AddComponent<RuntimeShatterExample>().SlicedVerticalShipHull(currentLength, upperHalfHull, false, false);
+                        slicedHulls = upperHalfHull.AddComponent<RuntimeShatterExample>().SlicedVerticalShipHull(currentLength, false, false, upperHalfHull);
                     }
                     if (slicedHulls != null)
                     {
@@ -637,12 +637,12 @@ namespace Assets.Scripts
                 GameObject[] slicedHulls = null;
                 if (currentLength >= 0)
                 {
-                    slicedHulls = upperHalfHull.AddComponent<RuntimeShatterExample>().SlicedVerticalShipHull(currentLength, upperHalfHull, true, true);
+                    slicedHulls = upperHalfHull.AddComponent<RuntimeShatterExample>().SlicedVerticalShipHull(currentLength, true, true, upperHalfHull);
 
                 }
                 else
                 {
-                    slicedHulls = upperHalfHull.AddComponent<RuntimeShatterExample>().SlicedVerticalShipHull(currentLength, upperHalfHull, true, true);
+                    slicedHulls = upperHalfHull.AddComponent<RuntimeShatterExample>().SlicedVerticalShipHull(currentLength, true, true, upperHalfHull);
                 }
                 if (slicedHulls != null)
                 {
