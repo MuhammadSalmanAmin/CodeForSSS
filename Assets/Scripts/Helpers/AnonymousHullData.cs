@@ -12,6 +12,9 @@ namespace Assets.Scripts.Helpers
         public static float Density = 1.025f;
         public static float IncrementInScale = 0.002f;
         public static float MaxScale = 5.1f;
+        public static float SplitSize = 1000f;
+        public static float ShipHalfOrdinatePointForSimpsonRule = 0.005f;
+        public static float HullFinalOrdinateHeight = 3.889421f;
         public static float GetNearbyScaleViaLoad(float load)
         {
             float approxScale = 0.0f;

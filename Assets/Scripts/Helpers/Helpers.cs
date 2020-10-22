@@ -51,5 +51,16 @@ namespace Assets.Scripts.Helpers
         public float GMl { get; set; }
         public float BMt { get; set; }
         public float Km { get; set; }
+
+        public float MCTC { get; set; }
+
+        public double TPI { get; set; }
+
+        public double Trim { get; set; }
+
+        public float List { get; set; }
+
+        public float GM { get; set; }
+        public float Moment { get; set; }
     }
 }
