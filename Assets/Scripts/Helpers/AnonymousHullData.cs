@@ -8,7 +8,8 @@ namespace Assets.Scripts.Helpers
 {
     public static class AnonymousHullData
     {
-        public static float InitialLoad = 421.7f;
+        // public static float InitialLoad = 421.7f;
+        public static float InitialLoad = 5761.5f;
         public static float Density = 1.025f;
         public static float IncrementInScale = 0.002f;
         public static float MaxScale = 5.1f;

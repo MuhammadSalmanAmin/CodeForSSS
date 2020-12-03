@@ -13,18 +13,22 @@ namespace Assets.Scripts
         void Start()
         {
             ///
-            CalculateBuoyancy(670.8f, 3.0f);
+            CalculateBuoyancy(1400f,2.0f);
         }
         public Tuple<float,float> CalculateBuoyancy(float volume,float inScale,GameObject inGameObject = null)
         {
             Tuple<float, float> returnValue = new Tuple<float, float>(0,0);
+
+
+            //GameObject[] result = gameObject.AddComponent<RuntimeShatterExample>().SlicedShipHullHorizontal(3.0f, true, true, null);
+
             GameObject submergedHull = null;
             try
             {
                 float density = 1.025f;
 
                 float exactSubmergedVolume = volume;
-                float scale = inScale ;
+                float scale = inScale;
 
                 float currentSubmergedVolume = 0.0f;
 
@@ -32,7 +36,7 @@ namespace Assets.Scripts
 
                 float previousScale = 0.0f;
 
-                while (currentSubmergedVolume < exactSubmergedVolume  && scale < 5.0f  )
+                while (currentSubmergedVolume < exactSubmergedVolume && scale < 5.0f)
                 {
                     GameObject[] result = gameObject.AddComponent<RuntimeShatterExample>().SlicedShipHullAlongZ(scale, false, false, null);
                     currentSubmergedVolume = meshVolume.VolumeOfMesh(result[1].GetComponent<MeshFilter>().sharedMesh) / density;
@@ -54,7 +58,7 @@ namespace Assets.Scripts
                 Debug.Log("Immersed Depth : " + scale);
 
                 var wettedHull = gameObject.AddComponent<RuntimeShatterExample>().SlicedShipHullAlongZ(scale, true, true, null);
- 
+
                 CalculateCentroidFromArea centroidFromArea = new CalculateCentroidFromArea();
                 var wettedArea = centroidFromArea.AreaOfMesh(wettedHull[1].GetComponent<MeshFilter>().sharedMesh);
 

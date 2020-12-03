@@ -60,7 +60,7 @@ public class HydrostaticsCalculator : MonoBehaviour
                 var totalLoad = AnonymousHullData.TotalLoad(condition.LoadAdded);
 
                 var MaximumAndMinimumDraughts = CalculateDraught(totalLoad, scale, AnonymousHullData.Density, AnonymousHullData.MaxScale, AnonymousHullData.IncrementInScale);
-
+ 
                 ApplySimpsonRule(MaximumAndMinimumDraughts.Item2, MaximumAndMinimumDraughts.Item1, 5f);
 
 
@@ -195,7 +195,7 @@ public class HydrostaticsCalculator : MonoBehaviour
             RuntimeShatterExample originalObjectComponent = originalObject.GetComponent<RuntimeShatterExample>();
 
             GameObject submergedHullFromMaximumSlicingPoint = originalObjectComponent.SlicedShipHullAlongZ(maxSlicer, false, false, null)[1];
-            GameObject submergedHullFromMinimumSlicingPoint = originalObjectComponent.SlicedShipHullAlongZ(minSlicer, false, false, submergedHullFromMaximumSlicingPoint)[0]; 
+            GameObject submergedHullFromMinimumSlicingPoint = originalObjectComponent.SlicedShipHullAlongZ(minSlicer, true, true, submergedHullFromMaximumSlicingPoint)[0]; 
 
             GameObject[] halfHull = originalObjectComponent.SlicedShipHullHorizontal(AnonymousHullData.ShipHalfOrdinatePointForSimpsonRule, false, false, submergedHullFromMinimumSlicingPoint);
 
@@ -325,7 +325,7 @@ public class HydrostaticsCalculator : MonoBehaviour
         }
 
         float result = ((2 * equalChunk) / 9) * productArea;
-        Debug.Log("Moment of Inertia Ix is : " + result);
+      //  Debug.Log("Moment of Inertia Ix is : " + result);
 
         return result;
     }
@@ -361,7 +361,7 @@ public class HydrostaticsCalculator : MonoBehaviour
 
         area = (splitSize / 3) * area;
 
-        Debug.Log("Area is  : " + area);
+        //Debug.Log("Area is  : " + area);
 
         var squareCoordinates = new System.Collections.Generic.List<Tuple<float, float>>();
 
@@ -458,8 +458,8 @@ public class HydrostaticsCalculator : MonoBehaviour
 
         Iy = (splitSize / 3) * Iy;
 
-        Debug.Log("Center AT X is  : " + centerAtx);
-        Debug.Log("Center AT Y is  : " + centerAty);
+       // Debug.Log("Center AT X is  : " + centerAtx);
+       // Debug.Log("Center AT Y is  : " + centerAty);
 
         // Debug.Log("Iy is  : " + Iy);
 
@@ -468,8 +468,8 @@ public class HydrostaticsCalculator : MonoBehaviour
 
         var gml = (2 * final) / displacement;
 
-        Debug.Log("Iyy is : " + 2 * final);
-        Debug.Log("GML is : " + gml);
+       // Debug.Log("Iyy is : " + 2 * final);
+       // Debug.Log("GML is : " + gml);
 
         return gml;
     }
@@ -478,20 +478,20 @@ public class HydrostaticsCalculator : MonoBehaviour
     public void CalculateTrim(float addedMass, float totalDisplacement, float locationATX, float waterplaneArea, float waterplaneLength, float gml)
     {
         float mctc = (totalDisplacement * gml) / (waterplaneLength * 100);
-        Debug.Log("Mctc is : " + mctc);
+       // Debug.Log("Mctc is : " + mctc);
 
         
         float angleInRadians = (addedMass * locationATX) / (totalDisplacement * gml);
-        Debug.Log("Angle in radians : " + angleInRadians);
+       // Debug.Log("Angle in radians : " + angleInRadians);
 
         double angleInDegree = angleInRadians * (180 / Math.PI);
-        Debug.Log("Angle in degree : " + angleInDegree);
+       // Debug.Log("Angle in degree : " + angleInDegree);
 
         double trim = angleInDegree * waterplaneLength;
-        Debug.Log("Trim : " + trim);
+       // Debug.Log("Trim : " + trim);
 
         double tpi = (waterplaneArea * 1.025) / 100;
-        Debug.Log("TPI : " + tpi);
+      //  Debug.Log("TPI : " + tpi);
 
         ShipHydrostaticData.MCTC = mctc;
         ShipHydrostaticData.Trim = trim;
@@ -532,8 +532,6 @@ public class HydrostaticsCalculator : MonoBehaviour
 
         var ListAngle = moment / (totalDisplacement * GM);
        // Debug.Log("List Angle is : " + ListAngle);
-
-
         ShipHydrostaticData.BMt = BMt;
         ShipHydrostaticData.Km = KM;
         ShipHydrostaticData.KG = overallKG;

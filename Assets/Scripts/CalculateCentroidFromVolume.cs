@@ -198,8 +198,42 @@ public class CalculateCentroidFromVolume : MonoBehaviour
         }
         centroid /= volume_sum;
 
-        Debug.Log("LCB : " + centroid.x);
+        Debug.Log("X : " + centroid.x);
+        Debug.Log("y : " + centroid.y);
+        Debug.Log("X : " + centroid.z);
+
         return (centroid.x);
+    }
+
+
+    public float CalculateLCBZ(Mesh mesh)
+    {
+        float volume = 0.0f;
+        float volume_sum = 0.0f;
+        Vector3 centroid = new Vector3(0.0f, 0.0f, 0.0f);
+        Vector3[] vertices = mesh.vertices;
+        int[] triangles = mesh.triangles;
+
+
+        for (int i = 0; i < mesh.triangles.Length; i += 3)
+        {
+            Vector3 p1 = vertices[triangles[i + 0]];
+            Vector3 p2 = vertices[triangles[i + 1]];
+            Vector3 p3 = vertices[triangles[i + 2]];
+
+            var cross = Vector3.Cross(p1, p2);
+            var dot = UnityEngine.Vector3.Dot(cross, p3);
+
+            volume = dot / 6;
+            centroid += volume * (p1 + p2 + p3) / 4;
+            volume_sum += volume;
+        }
+        centroid /= volume_sum;
+
+        Debug.Log("X : " + centroid.x);
+        Debug.Log("y : " + centroid.y);
+        Debug.Log("X : " + centroid.z);
+        return (centroid.z);
     }
     public float VolumeOfMesh1(Mesh mesh)
     {
