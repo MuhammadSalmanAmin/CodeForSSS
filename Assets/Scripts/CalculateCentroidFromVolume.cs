@@ -144,8 +144,10 @@ public class CalculateCentroidFromVolume : MonoBehaviour
             volume_sum += volume;
         }
         centroid /= volume_sum;
-       // Debug.Log("KB : " + centroid.z);
-        return (centroid.z);
+        //Debug.Log("KB x : " + centroid.x);
+        //Debug.Log("KB y : " + centroid.y);
+        //Debug.Log("KB z : " + centroid.z);
+        return (centroid.y);
     }
 
     public float CalculateLCF(Mesh mesh)
@@ -171,7 +173,7 @@ public class CalculateCentroidFromVolume : MonoBehaviour
             volume_sum += volume;
         }
         centroid /= volume_sum;
-        Debug.Log("LCF : " + centroid.x);
+        //Debug.Log("LCF : " + centroid.x);
         return (centroid.x);
     }
     public float CalculateLCB(Mesh mesh)
@@ -198,9 +200,9 @@ public class CalculateCentroidFromVolume : MonoBehaviour
         }
         centroid /= volume_sum;
 
-        Debug.Log("X : " + centroid.x);
-        Debug.Log("y : " + centroid.y);
-        Debug.Log("X : " + centroid.z);
+        //Debug.Log("LCB x : " + centroid.x);
+        //Debug.Log("LCB y : " + centroid.y);
+        //Debug.Log("LCB z : " + centroid.z);
 
         return (centroid.x);
     }

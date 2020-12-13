@@ -9,6 +9,10 @@ namespace Assets.Scripts
     {
         void Start()
         {
+
+            Debug.Log("Min : "+ gameObject.GetComponent<MeshFilter>().sharedMesh.vertices.Min(x => x.x));
+
+            Debug.Log("Max : " + gameObject.GetComponent<MeshFilter>().sharedMesh.vertices.Max(x => x.x));
             //try
             //{
             //    float submergedVolume = 0.0f;
@@ -43,8 +47,8 @@ namespace Assets.Scripts
             {
                 SliceMeshVol meshVolume = new SliceMeshVol();
 
-                GameObject[] result = gameObject.AddComponent<RuntimeShatterExample>().SlicedShipHullAlongZ(maxSliced, false, false);
-                GameObject[] result2 = result[1].AddComponent<RuntimeShatterExample>().SlicedShipHullAlongZ(minSliced, false, false, result[1]);
+                GameObject[] result = gameObject.AddComponent<RuntimeShatterExample>().SlicedShipHullHorizontal(maxSliced, false, false);
+                GameObject[] result2 = result[1].AddComponent<RuntimeShatterExample>().SlicedShipHullHorizontal(minSliced, false, false, result[1]);
 
                 submergedVolume = meshVolume.VolumeOfMesh(result2[0].GetComponent<MeshFilter>().sharedMesh);
 

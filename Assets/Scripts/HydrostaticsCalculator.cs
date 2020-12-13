@@ -44,24 +44,26 @@ public class HydrostaticsCalculator : MonoBehaviour
             InitialDisplacement = AnonymousHullData.InitialLoad,
             Conditions = new List<LoadingCondition>()
             {
-                new LoadingCondition() { LoadAdded = 249.1f }
+                new LoadingCondition() { LoadAdded = 390f }
             }
         };
         
-        CaculateHydrostatics();
+        CalculateHydrostatics();
     }
-    public void CaculateHydrostatics()
+    public void CalculateHydrostatics()
     {
         try
         {
+            gameObject.AddComponent<RuntimeShatterExample>();
+         
             foreach (var condition in InputData.Conditions)
             {
                 var scale = AnonymousHullData.GetNearbyScaleViaLoad(condition.LoadAdded);
                 var totalLoad = AnonymousHullData.TotalLoad(condition.LoadAdded);
 
-                var MaximumAndMinimumDraughts = CalculateDraught(totalLoad, scale, AnonymousHullData.Density, AnonymousHullData.MaxScale, AnonymousHullData.IncrementInScale);
+               var MaximumAndMinimumDraughts = CalculateDraught(totalLoad, scale, AnonymousHullData.Density, AnonymousHullData.MaxScale, AnonymousHullData.IncrementInScale);
  
-                ApplySimpsonRule(MaximumAndMinimumDraughts.Item2, MaximumAndMinimumDraughts.Item1, 5f);
+              // ApplySimpsonRule(3.036004f, 3.034004f, 5f);
 
 
                 Debug.Log("Displacement  : " + ShipHydrostaticData.Displacement);
@@ -132,7 +134,7 @@ public class HydrostaticsCalculator : MonoBehaviour
 
             while (currentSubmergedVolume < exactSubmergedVolume && scale < maxScale)
             {
-                GameObject[] result = runtimeShatterComponent.SlicedShipHullAlongZ(scale, false, false, null);
+                GameObject[] result = runtimeShatterComponent.SlicedShipHullHorizontal(scale, false, false, null);
                 currentSubmergedVolume = meshVolume.VolumeOfMesh(result[1].GetComponent<MeshFilter>().sharedMesh) / density;
 
                 submergedHull = result[1];
@@ -148,7 +150,7 @@ public class HydrostaticsCalculator : MonoBehaviour
             //Debug.Log("Draft Amidships : " + scale);
             //Debug.Log("Immersed Depth : " + scale);
 
-            var wettedHull = runtimeShatterComponent.SlicedShipHullAlongZ(scale, true, true, null);
+            var wettedHull = runtimeShatterComponent.SlicedShipHullHorizontal(scale, true, true, null);
 
             #region Caution
             /// Need to review area script
@@ -194,10 +196,10 @@ public class HydrostaticsCalculator : MonoBehaviour
 
             RuntimeShatterExample originalObjectComponent = originalObject.GetComponent<RuntimeShatterExample>();
 
-            GameObject submergedHullFromMaximumSlicingPoint = originalObjectComponent.SlicedShipHullAlongZ(maxSlicer, false, false, null)[1];
-            GameObject submergedHullFromMinimumSlicingPoint = originalObjectComponent.SlicedShipHullAlongZ(minSlicer, true, true, submergedHullFromMaximumSlicingPoint)[0]; 
+            GameObject submergedHullFromMaximumSlicingPoint = originalObjectComponent.SlicedShipHullHorizontal(maxSlicer, false, false, null)[1];
+            GameObject submergedHullFromMinimumSlicingPoint = originalObjectComponent.SlicedShipHullHorizontal(minSlicer, false, false, submergedHullFromMaximumSlicingPoint)[0]; 
 
-            GameObject[] halfHull = originalObjectComponent.SlicedShipHullHorizontal(AnonymousHullData.ShipHalfOrdinatePointForSimpsonRule, false, false, submergedHullFromMinimumSlicingPoint);
+            GameObject[] halfHull = originalObjectComponent.SlicedShipHullAlongZ(AnonymousHullData.ShipHalfOrdinatePointForSimpsonRule, true, true, submergedHullFromMinimumSlicingPoint);
 
             GameObject upperHalfHull = halfHull[0];
 
@@ -205,86 +207,86 @@ public class HydrostaticsCalculator : MonoBehaviour
 
             var waterplaneLength = Math.Abs(mesh.vertices.Min(x => x.x)) + Math.Abs(mesh.vertices.Max(x => x.x));
 
-            //Debug.Log("WL Length  :  " + waterplaneLength);
+            Debug.Log("WL Length  :  " + waterplaneLength);
 
-            float equalChunk = waterplaneLength / AnonymousHullData.SplitSize;
-            float currentLength = mesh.vertices.Min(x => x.x) + equalChunk;
+            //float equalChunk = waterplaneLength / AnonymousHullData.SplitSize;
+            //float currentLength = mesh.vertices.Min(x => x.x) + equalChunk;
 
-            coordinates.Add(new Tuple<float, float>(mesh.vertices.Min(x => x.x), 0));
+            //coordinates.Add(new Tuple<float, float>(mesh.vertices.Min(x => x.x), 0));
 
-            SliceMeshVol meshVolume = new SliceMeshVol();
-            GameObject subHull = originalObjectComponent.SlicedShipHullAlongZ(minSlicer, false, false)[1];
-            var currentSubmergedVolume = meshVolume.VolumeOfMesh(subHull.GetComponent<MeshFilter>().sharedMesh) / AnonymousHullData.Density;
+            //SliceMeshVol meshVolume = new SliceMeshVol();
+            //GameObject subHull = originalObjectComponent.SlicedShipHullHorizontal(minSlicer, false, false)[1];
+            //var currentSubmergedVolume = meshVolume.VolumeOfMesh(subHull.GetComponent<MeshFilter>().sharedMesh) / AnonymousHullData.Density;
 
-            int totalFailures = 0;
+            //int totalFailures = 0;
 
-            upperHalfHull.AddComponent<RuntimeShatterExample>();
+            //upperHalfHull.AddComponent<RuntimeShatterExample>();
 
-            for (int i = 1; i <= AnonymousHullData.SplitSize; i++)
-            {
-                GameObject[] slicedHulls = null;
-                if (currentLength > 0)
-                {
-                    slicedHulls = upperHalfHull.GetComponent<RuntimeShatterExample>().SlicedVerticalShipHull(currentLength, false, false, upperHalfHull);
+            //for (int i = 1; i <= AnonymousHullData.SplitSize; i++)
+            //{
+            //    GameObject[] slicedHulls = null;
+            //    if (currentLength > 0)
+            //    {
+            //        slicedHulls = upperHalfHull.GetComponent<RuntimeShatterExample>().SlicedVerticalShipHull(currentLength, false, false, upperHalfHull);
 
-                }
-                else
-                {
-                    slicedHulls = upperHalfHull.GetComponent<RuntimeShatterExample>().SlicedVerticalShipHull(currentLength, false, false, upperHalfHull);
-                }
-                if (slicedHulls != null)
-                {
-                    float sliceY = 0.0f;
-                    Mesh meshed = null;
-                    if (currentLength > 0)
-                    {
-                        meshed = slicedHulls[1].GetComponent<MeshFilter>().sharedMesh;
-                    }
-                    else
-                    {
-                        meshed = slicedHulls[0].GetComponent<MeshFilter>().sharedMesh;
-                    }
+            //    }
+            //    else
+            //    {
+            //        slicedHulls = upperHalfHull.GetComponent<RuntimeShatterExample>().SlicedVerticalShipHull(currentLength, false, false, upperHalfHull);
+            //    }
+            //    if (slicedHulls != null)
+            //    {
+            //        float sliceY = 0.0f;
+            //        Mesh meshed = null;
+            //        if (currentLength > 0)
+            //        {
+            //            meshed = slicedHulls[1].GetComponent<MeshFilter>().sharedMesh;
+            //        }
+            //        else
+            //        {
+            //            meshed = slicedHulls[0].GetComponent<MeshFilter>().sharedMesh;
+            //        }
 
-                    if (meshed.vertices.Any(x => x.x == currentLength))
-                    {
-                        sliceY = meshed.vertices.Where(x => x.x == currentLength).Max(z => z.y);
-                    }
-                    else
-                    {
-                        totalFailures++;
-                        sliceY = coordinates[i - 1].Item2 + .00001f;
-                    }
-                    coordinates.Add(new Tuple<float, float>(currentLength, sliceY));
-                }
-                else
-                {
-                    coordinates.Add(new Tuple<float, float>(currentLength, AnonymousHullData.HullFinalOrdinateHeight));
-                }
-                currentLength += equalChunk;
-            }
+            //        if (meshed.vertices.Any(x => x.x == currentLength))
+            //        {
+            //            sliceY = meshed.vertices.Where(x => x.x == currentLength).Max(z => z.y);
+            //        }
+            //        else
+            //        {
+            //            totalFailures++;
+            //            sliceY = coordinates[i - 1].Item2 + .00001f;
+            //        }
+            //        coordinates.Add(new Tuple<float, float>(currentLength, sliceY));
+            //    }
+            //    else
+            //    {
+            //        coordinates.Add(new Tuple<float, float>(currentLength, AnonymousHullData.HullFinalOrdinateHeight));
+            //    }
+            //    currentLength += equalChunk;
+            //}
 
-            #region Verified One
+            //#region Verified One
 
-            var Ix = CalculateIX(coordinates, equalChunk);
-            var gml = COF(coordinates, equalChunk, currentSubmergedVolume);
+            //var Ix = CalculateIX(coordinates, equalChunk);
+            //var gml = COF(coordinates, equalChunk, currentSubmergedVolume);
+
+            //#endregion
 
             #endregion
 
-            #endregion
-
-            CalculateWaterplaneArea wpArea = new CalculateWaterplaneArea();
-            var waterplaneArea = wpArea.Caculate(minSlicedPoint, maxSlicedPoint, originalObject);
+            //CalculateWaterplaneArea wpArea = new CalculateWaterplaneArea();
+            //var waterplaneArea = wpArea.Caculate(minSlicedPoint, maxSlicedPoint, originalObject);
 
 
-            float CLPosition = -5f;
+            //float CLPosition = -5f;
 
-            CalculateTrim(InputData.Conditions.ElementAt(0).LoadAdded, InputData.InitialDisplacement + InputData.Conditions.ElementAt(0).LoadAdded, locationAtX, waterplaneArea, waterplaneLength, gml);
-            CalculateList(InputData.Conditions.ElementAt(0).LoadAdded, InputData.InitialDisplacement + InputData.Conditions.ElementAt(0).LoadAdded, Ix, CLPosition, gml, maxSlicedPoint, originalObject);
+            //CalculateTrim(InputData.Conditions.ElementAt(0).LoadAdded, InputData.InitialDisplacement + InputData.Conditions.ElementAt(0).LoadAdded, locationAtX, waterplaneArea, waterplaneLength, gml);
+            //CalculateList(InputData.Conditions.ElementAt(0).LoadAdded, InputData.InitialDisplacement + InputData.Conditions.ElementAt(0).LoadAdded, Ix, CLPosition, gml, maxSlicedPoint, originalObject);
 
-            ShipHydrostaticData.WaterplaneLength = waterplaneLength;
-            ShipHydrostaticData.MomentOfInertiaX = Ix;
-            ShipHydrostaticData.GMl = gml;
-            ShipHydrostaticData.WaterplaneArea = waterplaneArea;
+            //ShipHydrostaticData.WaterplaneLength = waterplaneLength;
+            //ShipHydrostaticData.MomentOfInertiaX = Ix;
+            //ShipHydrostaticData.GMl = gml;
+            //ShipHydrostaticData.WaterplaneArea = waterplaneArea;
 
         }
         catch (Exception ex)

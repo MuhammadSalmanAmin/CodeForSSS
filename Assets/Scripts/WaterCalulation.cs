@@ -20,12 +20,19 @@ public class WaterCalulation : MonoBehaviour
         GameObject mesh = GameObject.FindWithTag("solid_hull");
         Mesh meshFilter = mesh.GetComponent<MeshFilter>().mesh;
         Vector3 getSize = meshFilter.bounds.size;
+        Vector3 getMax = meshFilter.bounds.max;
+        Vector3 getMin = meshFilter.bounds.min;
         Debug.Log(" Length : " + getSize.x);
         Debug.Log(" Width : " + getSize.y);
         Debug.Log(" Height : " + getSize.z);
 
+        Debug.Log("Max x : " + getMax.x);
+        Debug.Log("Max y : " + getMax.y);
+        Debug.Log("Max z : " + getMax.z);
 
-        
+        Debug.Log("Min x : " + getMin.x);
+        Debug.Log("Min y : " + getMin.y);
+        Debug.Log("Min z : " + getMin.z);
        // Bounds bounds = meshFilter.bounds;
     }
 }

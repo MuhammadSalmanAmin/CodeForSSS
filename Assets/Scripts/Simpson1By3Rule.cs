@@ -14,16 +14,16 @@ namespace Assets.Scripts
 {
     public class Simpson1By3Rule : MonoBehaviour
     {
-        static float initialMass = 421.7f;
-        static float addedMass = 249.1f;
-        static int splitSize = 1000;
-        static float locationAtX = 25f;
+        static float initialMass = 1010.0f;
+        static float addedMass = 390f;
+        static int splitSize = 100;
+        static float locationAtX = -83f;
         static float CLPosition = -5f;
 
         void Start()
         {
             float totalDisplacement = initialMass + addedMass;
-            applySimpson(addedMass,totalDisplacement, 3.032001f, 3.030001f, locationAtX);
+            applySimpson(addedMass,totalDisplacement, 3.0321004f, 3.032004f, locationAtX);
         }
 
         public void applySimpson(float addedMass,float totalDisplacement,float maxSlicedPoint, float minSlicedPoint,float locationAtX)
@@ -39,11 +39,11 @@ namespace Assets.Scripts
 
                 GameObject originalObject = gameObject;
 
-                GameObject submergedHull1 = gameObject.AddComponent<RuntimeShatterExample>().SlicedShipHullAlongZ(maxSlicer, false, false, null)[1];// GetSubmergedHull();
+                GameObject submergedHull1 = gameObject.AddComponent<RuntimeShatterExample>().SlicedShipHullHorizontal(maxSlicer, false, false, null)[1];// GetSubmergedHull();
 
-                GameObject submergedHull = gameObject.AddComponent<RuntimeShatterExample>().SlicedShipHullAlongZ(minSlicer, false, false, submergedHull1)[0];// GetSubmergedHull();
+                GameObject submergedHull = gameObject.AddComponent<RuntimeShatterExample>().SlicedShipHullHorizontal(minSlicer, false, false, submergedHull1)[0];// GetSubmergedHull();
 
-                GameObject[] halfHull = gameObject.AddComponent<RuntimeShatterExample>().SlicedShipHullHorizontal(0.005f, true, true, submergedHull);
+                GameObject[] halfHull = gameObject.AddComponent<RuntimeShatterExample>().SlicedShipHullAlongZ(0.005f, true, true, submergedHull);
 
                 GameObject upperHalfHull = halfHull[0];
 
@@ -59,9 +59,11 @@ namespace Assets.Scripts
                 coordinates.Add(new Tuple<float, float>(mesh.vertices.Min(x => x.x), 0));
 
                 SliceMeshVol meshVolume = new SliceMeshVol();
-                GameObject subHull = gameObject.AddComponent<RuntimeShatterExample>().SlicedShipHullAlongZ(minSlicer, false, false)[1];
+                GameObject subHull = gameObject.AddComponent<RuntimeShatterExample>().SlicedShipHullHorizontal(minSlicer, false, false)[1];
                 var currentSubmergedVolume = meshVolume.VolumeOfMesh(subHull.GetComponent<MeshFilter>().sharedMesh) / 1.025f;
 
+
+                Debug.Log("VOlume  : " + currentSubmergedVolume);
                 int totalFailures = 0;
 
                 for (int i = 1; i <= splitSize; i++)
@@ -69,12 +71,12 @@ namespace Assets.Scripts
                     GameObject[] slicedHulls = null;
                     if (currentLength > 0)
                     {
-                        slicedHulls = upperHalfHull.AddComponent<RuntimeShatterExample>().SlicedVerticalShipHull(currentLength, false, false, upperHalfHull);
+                        slicedHulls = upperHalfHull.AddComponent<RuntimeShatterExample>().SlicedVerticalShipHull(currentLength, true, false, upperHalfHull);
 
                     }
                     else
                     {
-                        slicedHulls = upperHalfHull.AddComponent<RuntimeShatterExample>().SlicedVerticalShipHull(currentLength, false, false, upperHalfHull);
+                        slicedHulls = upperHalfHull.AddComponent<RuntimeShatterExample>().SlicedVerticalShipHull(currentLength, false, true, upperHalfHull);
                     }
                     if (slicedHulls != null)
                     {
@@ -91,22 +93,27 @@ namespace Assets.Scripts
 
                         if (meshed.vertices.Any(x => x.x == currentLength))
                         {
-                            sliceY = meshed.vertices.Where(x => x.x == currentLength).Max(z => z.y);
+                            sliceY = meshed.vertices.Where(x => x.x == currentLength).Max(z => z.z);
                         }
                         else
                         {
                             totalFailures++;
                             sliceY = coordinates[i - 1].Item2 + .00001f;
                         }
+
+                       // Debug.Log("Max y is  : " + sliceY);
                         coordinates.Add(new Tuple<float, float>(currentLength, sliceY));
                     }
                     else
                     {
-                        coordinates.Add(new Tuple<float, float>(currentLength, 3.889421f));
+                      //  Debug.Log("last value : " + mesh.vertices.Where(x => x.x == 3.1419f).First().y);
+
+                        coordinates.Add(new Tuple<float, float>(currentLength, 3.036004f));
                     }
                     currentLength += equalChunk;
                 }
 
+                //Debug.Log("Total failtues : " + totalFailures);
                 // SecondMomentOfInertia(coordinates, equalChunk);
                 //var area = CalculateArea(coordinates, equalChunk);
 
@@ -124,7 +131,7 @@ namespace Assets.Scripts
 
                 CalculateTrim(addedMass, totalDisplacement, locationAtX, waterplaneArea, waterplaneLength, gml);
 
-                CalculateList(addedMass, totalDisplacement, Ix, CLPosition , gml,maxSlicedPoint, originalObject);
+                //CalculateList(addedMass, totalDisplacement, Ix, CLPosition , gml,maxSlicedPoint, originalObject);
             }
             catch (Exception ex)
             {
@@ -271,7 +278,8 @@ namespace Assets.Scripts
                     }
                 }
             }
-
+          
+            //float result = (2 * equalChunk* productArea)/3;
             float result = ((2 * equalChunk) / 9) * productArea;
             Debug.Log("Moment of Inertia Ix is : " + result);
 
@@ -430,9 +438,10 @@ namespace Assets.Scripts
             var final = Iy - (2 * area * (centerAtx * centerAtx));
 
 
-            var gml = (2 * final) / displacement;
+           // var gml = (2 * final) / displacement;
 
-            Debug.Log("Iyy is : " + 2 * final);
+            var gml = (final) / displacement;
+            Debug.Log("Iyy is : " + final);
             Debug.Log("GML is : " + gml);
 
             return gml;

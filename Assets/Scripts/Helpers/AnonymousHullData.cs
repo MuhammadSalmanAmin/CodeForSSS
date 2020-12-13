@@ -8,8 +8,8 @@ namespace Assets.Scripts.Helpers
 {
     public static class AnonymousHullData
     {
-        // public static float InitialLoad = 421.7f;
-        public static float InitialLoad = 5761.5f;
+        //public static float InitialLoad = 421.7f;
+        public static float InitialLoad = 1010f;
         public static float Density = 1.025f;
         public static float IncrementInScale = 0.002f;
         public static float MaxScale = 5.1f;
@@ -22,9 +22,9 @@ namespace Assets.Scripts.Helpers
 
             var TotalLoad = InitialLoad + load;
 
-            if (TotalLoad >= 421.7f && TotalLoad <= 500.4f)
+            if (TotalLoad >= 1300f && TotalLoad <= 1450f)
             {
-                approxScale = 2.20f;
+                approxScale = 2.95f;
             }
             else if (TotalLoad > 500.4f && TotalLoad <= 583.8f)
             {
